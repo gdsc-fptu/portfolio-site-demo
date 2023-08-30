@@ -1,0 +1,23 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Fonts */
+  --font-display: 'Reem Kufi', sans-serif;
+  --font-main: 'Raleway', sans-serif;
+  /* Colors */
+  --color-blue: #4285F4;
+  --color-green: #34A853;
+  --color-yellow: #FBBC05;
+  --color-red: #EA4335;
+  --color-white: #FFFFFF;
+  --color-mate-black: #212121;
+}
+
+html {
+  font-size: 10px;
+  font-family: var(--font-main);
+}

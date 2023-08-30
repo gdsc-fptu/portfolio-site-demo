@@ -1,0 +1,54 @@
+.badge {
+    padding: 1rem 1.5rem;
+    box-sizing: content-box;
+    border-radius: 2rem;
+    font-size: 1.5rem;
+    font-family: var(--font-main);
+    font-weight: 600;
+    color: var(--color-white);
+    margin-right: 1.5rem;
+    cursor: pointer;
+    transition: .3s;
+    z-index: 3;
+    // Default color
+    background-color: var(--color-mate-black);
+    &:hover {
+        box-shadow: 0 .5rem 1rem 0 var(--color-mate-black);
+    }
+
+    &_red {
+        @extend .badge;
+        background-color: var(--color-red);
+
+        &:hover {
+            box-shadow: 0 .5rem 1rem 0 var(--color-red);
+        }
+    }
+
+    &_green {
+        @extend .badge;
+        background-color: var(--color-green);
+
+        &:hover {
+            box-shadow: 0 .5rem 1rem 0 var(--color-green);
+        }
+    }
+
+    &_blue {
+        @extend .badge;
+        background-color: var(--color-blue);
+
+        &:hover {
+            box-shadow: 0 .5rem 1rem 0 var(--color-blue);
+        }
+    }
+
+    &_yellow {
+        @extend .badge;
+        background-color: var(--color-yellow);
+
+        &:hover {
+            box-shadow: 0 .5rem 1rem 0 var(--color-yellow);
+        }
+    }
+}

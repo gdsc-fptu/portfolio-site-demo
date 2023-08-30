@@ -1,0 +1,34 @@
+.background {
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+
+	&_dotted {
+		@extend .background;
+		background: transparent;
+		background-size: 4rem 4rem;
+		background-position: -1rem -1rem;
+
+		&_blue {
+			@extend .background_dotted;
+			background-image: radial-gradient(var(--color-blue) .106rem, transparent 0);
+		}
+
+		&_red {
+			@extend .background_dotted;
+			background-image: radial-gradient(var(--color-red) .106rem, transparent 0);
+		}
+
+		&_yellow {
+			@extend .background_dotted;
+			background-image: radial-gradient(var(--color-yellow) .106rem, transparent 0);
+		}
+
+		&_green {
+			@extend .background_dotted;
+			background-image: radial-gradient(var(--color-green) .106rem, transparent 0);
+		}
+	}
+}
