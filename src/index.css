@@ -8,16 +8,30 @@
   /* Fonts */
   --font-display: 'Reem Kufi', sans-serif;
   --font-main: 'Raleway', sans-serif;
+  --font-mono: 'Roboto Mono', monospace;
   /* Colors */
   --color-blue: #4285F4;
   --color-green: #34A853;
   --color-yellow: #FBBC05;
   --color-red: #EA4335;
+  --color-black: #000000;
   --color-white: #FFFFFF;
   --color-mate-black: #212121;
+  --color-light-gray: #F5F5F5;
+  --color-gray: #757575;
 }
 
 html {
   font-size: 10px;
   font-family: var(--font-main);
+  scroll-snap-type: y proximity;
+}
+
+.signature {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  color: var(--color-light-gray);
+  position: absolute;
+  inset: auto auto 1rem 1rem;
+  user-select: none;
 }

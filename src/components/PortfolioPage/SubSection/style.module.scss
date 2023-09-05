@@ -1,0 +1,9 @@
+.subSection {
+    position: relative;
+    min-height: 100vh;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(2rem);
+    z-index: 5;
+    scroll-snap-align: start;
+}

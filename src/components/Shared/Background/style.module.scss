@@ -30,5 +30,10 @@
 			@extend .background_dotted;
 			background-image: radial-gradient(var(--color-green) .106rem, transparent 0);
 		}
+
+		&_black {
+			@extend .background_dotted;
+			background-image: radial-gradient(var(--color-mate-black) .106rem, transparent 0);
+		}
 	}
 }

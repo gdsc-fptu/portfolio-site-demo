@@ -4,10 +4,11 @@ import style from "./style.module.scss";
 import logo from "../../../assets/brands/logo_only.png";
 import clsx from "clsx";
 import { GoogleColor } from "../../../utils/enum/color";
+import { AppStrings } from "../../../utils/strings";
 
 type RotationMarkerProps = {
-  color?: GoogleColor
-}
+  color?: GoogleColor;
+};
 export default function RotationMarker({ color }: RotationMarkerProps) {
   return (
     <div className={style.marker}>
@@ -29,7 +30,7 @@ export default function RotationMarker({ color }: RotationMarkerProps) {
               href="#circlePath"
               className={clsx(style.textPath, style[color])}
             >
-              Google Developer Student Clubs • FPT University Da Nang • &nbsp;
+              {AppStrings.marker}&nbsp;
             </textPath>
           </text>
         </svg>
