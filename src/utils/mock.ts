@@ -3,10 +3,10 @@ import vy from "../assets/images/vy.png";
 import { User } from "./interface";
 
 export const mockResponse: User = {
-  userName: "vydinh",
-  firstName: "Trần Yến Vy",
-  lastName: "Đinh",
-  roles: ["HR", "CORE"],
+  userName: "lem",
+  firstName: "Đinh Trần",
+  lastName: "Yến Vy",
+  roles: ["CORE", "HR", "TECH"],
   imageUrl: vy,
   descriptions:
     "I am Vy, call me Vy. I play Vietnamese Pipa and love spiritual stone. I am a tarot reader.",

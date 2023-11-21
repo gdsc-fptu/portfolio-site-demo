@@ -17,7 +17,11 @@ import { getStringByGender, getIconByGender } from "../../utils/enum/gender";
 import { getStringByZodiac, getIconByZodiac } from "../../utils/enum/zodiac";
 import { mockResponse } from "../../utils/mock";
 import { Project, Skill } from "../../utils/interface";
-import { incEltNbr, copyToClipboard } from "../../utils/utils";
+import {
+  incEltNbr,
+  copyToClipboard,
+  mobileAndTabletCheck,
+} from "../../utils/utils";
 import { AppStrings } from "../../utils/strings";
 import { BiCake, BiLogoTiktok } from "react-icons/bi";
 import {
@@ -37,7 +41,7 @@ export default function PortfolioPage() {
     const scrollPosition = window.scrollY;
     // Handle the grand image translate
     const grandImage = document.getElementById("GrandImg") as HTMLElement;
-    if (scrollPosition < screenHeight) {
+    if (scrollPosition < screenHeight && !mobileAndTabletCheck()) {
       // Calculate the translate value
       let translateValue = (scrollPosition * 25) / screenHeight;
       // Set the translate value
@@ -45,7 +49,7 @@ export default function PortfolioPage() {
     }
     // Handle the lastname translate
     const lastName = document.getElementById("Lastname") as HTMLElement;
-    if (scrollPosition < screenHeight / 2 - 100) {
+    if (scrollPosition < screenHeight / 2 - 100 && !mobileAndTabletCheck()) {
       lastName.style.zIndex = "2";
     } else {
       lastName.style.zIndex = "1";
@@ -53,7 +57,9 @@ export default function PortfolioPage() {
     // Handle increasing skill percent
     if (
       scrollPosition > screenHeight * 1.2 &&
-      scrollPosition < screenHeight * 1.2 + 100
+      scrollPosition < screenHeight * 1.2 + 100 &&
+      mockResponse.skills?.length !== 0 &&
+      !mobileAndTabletCheck()
     ) {
       for (let skill of mockResponse.skills as Skill[]) {
         let elt = document.getElementById(skill.id as string) as HTMLElement;
@@ -72,6 +78,7 @@ export default function PortfolioPage() {
   }, []);
 
   useEffect(() => {
+    document.title = `${mockResponse.firstName} ${mockResponse.lastName} - ${AppStrings.footerBrand}`;
     document.addEventListener("scroll", handleScrollActions);
     document.addEventListener("mousemove", handleBubbleTranslate);
     return () => {
@@ -176,7 +183,7 @@ export default function PortfolioPage() {
             <img src={logo} alt="Logo" />
           </div>
           <div className={style.headerName}>
-            <div>{mockResponse.lastName.toUpperCase()}</div>
+            <div>{mockResponse.firstName.toUpperCase()}</div>
             <div
               className={clsx(
                 style.lastname,
@@ -184,7 +191,7 @@ export default function PortfolioPage() {
               )}
               id="Lastname"
             >
-              {mockResponse.firstName.toUpperCase()}
+              {mockResponse.lastName.toUpperCase()}
             </div>
           </div>
           <div className={style.headerRoles}>

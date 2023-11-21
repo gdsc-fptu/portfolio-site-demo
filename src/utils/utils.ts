@@ -14,3 +14,15 @@ export function incEltNbr(elt: HTMLElement, value: number, speed: number = 10) {
 export function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text);
 }
+
+export function mobileAndTabletCheck() {
+  if (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    )
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+}
