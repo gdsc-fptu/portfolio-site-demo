@@ -35,5 +35,12 @@
 			@extend .background_dotted;
 			background-image: radial-gradient(var(--color-mate-black) .106rem, transparent 0);
 		}
+
+		&_purple {
+			@extend .background_dotted;
+			background-image: radial-gradient(var(--color-purple) .106rem, transparent 0);
+		}
+
+		// NEW COLORS APPEND HERE 👇
 	}
 }

@@ -6,6 +6,7 @@ export enum Roles {
   tech = "TECH",
   medev = "MEDEV",
   core = "CORE",
+  lead = "LEAD",
 }
 
 export function getColorByRole(role: String) {
@@ -17,6 +18,8 @@ export function getColorByRole(role: String) {
     return GoogleColor.blue;
   } else if (role === Roles.medev) {
     return GoogleColor.yellow;
+  } else if (role === Roles.lead) {
+    return GoogleColor.purple;
   } else {
     return GoogleColor.black;
   }
@@ -33,6 +36,8 @@ export function getFullNameByRole(role: String) {
     return "Media & Event";
   } else if (role === Roles.core) {
     return "Coreteam";
+  } else if (role === Roles.lead) {
+    return "Community Leader";
   } else {
     return role;
   }

@@ -6,7 +6,7 @@ export const mockResponse: User = {
   userName: "lem",
   firstName: "Đinh Trần",
   lastName: "Yến Vy",
-  roles: ["CORE", "HR", "TECH"],
+  roles: ["LEAD", "CORE", "HR", "BUSI"],
   imageUrl: vy,
   descriptions:
     "I am Vy, call me Vy. I play Vietnamese Pipa and love spiritual stone. I am a tarot reader.",
@@ -36,6 +36,15 @@ export const mockResponse: User = {
     },
   ],
   projects: [
+    {
+      name: "SunSheld",
+      description:
+        "SunSheld is a mobile app for detecting violation, and send emergency message.",
+      startDate: "2023-02",
+      endDate: "2023-04",
+      roles: ["BA", "UI/UX"],
+      technologies: ["Flutter", "Firebase"],
+    },
     {
       name: "Green Vision",
       description:

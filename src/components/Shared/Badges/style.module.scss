@@ -60,4 +60,15 @@
             box-shadow: 0 .5rem 1rem 0 var(--color-mate-black);
         }
     }
+
+    &_purple {
+        @extend .badge;
+        background-color: var(--color-purple);
+
+        &:hover {
+            box-shadow: 0 .5rem 1rem 0 var(--color-purple);
+        }
+    }
+
+    // NEW COLORS APPEND HERE 👇
 }

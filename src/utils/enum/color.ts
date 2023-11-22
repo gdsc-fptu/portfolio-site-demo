@@ -4,6 +4,7 @@ export enum GoogleColor {
   green = "green",
   blue = "blue",
   yellow = "yellow",
+  purple = "purple",
 }
 
 export function getHexByColor(color: GoogleColor) {
@@ -15,6 +16,8 @@ export function getHexByColor(color: GoogleColor) {
     return "34A853";
   } else if (color === GoogleColor.yellow) {
     return "FBBC05";
+  } else if (color === GoogleColor.purple) {
+    return "8D61FF";
   } else {
     return "000000";
   }
