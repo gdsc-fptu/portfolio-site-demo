@@ -4,7 +4,8 @@ import style from "./style.module.scss";
 import logo from "../../assets/brands/logo.png";
 // @ts-ignore
 import clsx from "clsx";
-import { useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, Fragment } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import RotationMarker from "../../components/Shared/RotationMarker";
 import Background, {
   BackgroundStyle,
@@ -12,10 +13,10 @@ import Background, {
 import Badge from "../../components/Shared/Badges";
 import FrostBadge from "../../components/PortfolioPage/FrostBadge";
 import SubSection from "../../components/PortfolioPage/SubSection";
+import Loader from "../../components/Shared/Loader";
 import { getColorByRole, getFullNameByRole } from "../../utils/enum/roles";
 import { getStringByGender, getIconByGender } from "../../utils/enum/gender";
 import { getStringByZodiac, getIconByZodiac } from "../../utils/enum/zodiac";
-import { mockResponse } from "../../utils/mock";
 import { Project, Skill } from "../../utils/interface";
 import {
   incEltNbr,
@@ -32,8 +33,14 @@ import {
 } from "react-icons/ai";
 import { FaFacebook, FaGithub } from "react-icons/fa";
 import { BsArrowRight } from "react-icons/bs";
+import { getPost } from "../../apis/read";
+import MovingBubble from "../../components/Shared/MovingBubble";
 
 export default function PortfolioPage() {
+  const [data, setData] = useState({} as any);
+  const location = useLocation();
+  const navigator = useNavigate();
+
   const handleScrollActions = useCallback(() => {
     // Get the screen height
     const screenHeight = window.innerHeight;
@@ -48,42 +55,48 @@ export default function PortfolioPage() {
       grandImage.style.transform = "translateX(" + translateValue + "%)";
     }
     // Handle the lastname translate
-    const lastName = document.getElementById("Lastname") as HTMLElement;
-    if (scrollPosition < screenHeight / 2 - 100 && !mobileAndTabletCheck()) {
-      lastName.style.zIndex = "2";
-    } else {
-      lastName.style.zIndex = "1";
-    }
+    // const lastName = document.getElementById("Lastname") as HTMLElement;
+    // if (scrollPosition < screenHeight / 2 - 100 && !mobileAndTabletCheck()) {
+    //   lastName.style.zIndex = "1";
+    // } else {
+    //   lastName.style.zIndex = "1";
+    // }
     // Handle increasing skill percent
     if (
       scrollPosition > screenHeight * 1.2 &&
       scrollPosition < screenHeight * 1.2 + 100 &&
-      mockResponse.skills?.length !== 0 &&
+      data.skills?.length !== 0 &&
       !mobileAndTabletCheck()
     ) {
-      for (let skill of mockResponse.skills as Skill[]) {
-        let elt = document.getElementById(skill.id as string) as HTMLElement;
+      for (let skill of data.skills as Skill[]) {
+        let elt = document.getElementById(skill.name as string) as HTMLElement;
         incEltNbr(elt as HTMLElement, skill.percent as number, 20);
       }
     }
   }, []);
 
-  const handleBubbleTranslate = useCallback((event: any) => {
-    let bubble = document.getElementById("Bubble") as HTMLElement;
-    // Get the current mouse position
-    let mousePositionX = event.clientX;
-    let mousePositionY = event.clientY;
-    // Translate the bubble
-    bubble.style.inset = `calc(${mousePositionY}px - 22.5rem) auto auto calc(${mousePositionX}px - 22.5rem)`;
-  }, []);
+  function handleNavigateToHome() {
+    navigator("/");
+  }
+
+  function handleNavigateToDepartment(role: String) {
+    navigator(`/?role=${role}`);
+  }
 
   useEffect(() => {
-    document.title = `${mockResponse.firstName} ${mockResponse.lastName} - ${AppStrings.footerBrand}`;
-    document.addEventListener("scroll", handleScrollActions);
-    document.addEventListener("mousemove", handleBubbleTranslate);
+    // Get the portfolio id
+    let id = location.pathname.split("/")[1];
+    getPost(id).then((res) => {
+      if (!res) {
+        navigator("/404");
+        return;
+      }
+      setData(res);
+      document.title = `${res.firstName} ${res.lastName} - ${AppStrings.footerBrand}`;
+      document.addEventListener("scroll", handleScrollActions);
+    });
     return () => {
       document.removeEventListener("scroll", handleScrollActions);
-      document.removeEventListener("mousemove", handleBubbleTranslate);
     };
   }, []);
 
@@ -175,37 +188,44 @@ export default function PortfolioPage() {
     return contactUIs;
   }
 
-  return (
+  return Object.keys(data).length !== 0 ? (
     <>
       <div className={style.container}>
         <div className={style.header}>
-          <div className={style.headerLogo}>
+          <div className={style.headerLogo} onClick={handleNavigateToHome}>
             <img src={logo} alt="Logo" />
           </div>
           <div className={style.headerName}>
-            <div>{mockResponse.firstName.toUpperCase()}</div>
+            <div>{data.firstName.toUpperCase()}</div>
             <div
               className={clsx(
                 style.lastname,
-                style[getColorByRole(mockResponse.roles[0])]
+                style[getColorByRole(data.roles[0])]
               )}
               id="Lastname"
             >
-              {mockResponse.lastName.toUpperCase()}
+              {data.lastName.toUpperCase()}
             </div>
           </div>
           <div className={style.headerRoles}>
-            {mockResponse.roles.map((role: String, index: number) => (
-              <Badge key={index} color={getColorByRole(role)}>
-                {getFullNameByRole(role)}
-              </Badge>
+            {data.roles.map((role: String, index: number) => (
+              <Fragment key={index}>
+                <Badge
+                  color={getColorByRole(role)}
+                  onClick={() => {
+                    handleNavigateToDepartment(role);
+                  }}
+                >
+                  {getFullNameByRole(role)}
+                </Badge>
+              </Fragment>
             ))}
           </div>
           <div className={style.headerMarker}>
-            <RotationMarker color={getColorByRole(mockResponse.roles[0])} />
+            <RotationMarker color={getColorByRole(data.roles[0])} />
           </div>
           <div className={style.headerImag} id={"GrandImg"}>
-            <img src={mockResponse.imageUrl as string} alt="" />
+            <img src={data.imageUrl as string} alt="" />
           </div>
         </div>
         <div className={style.info}>
@@ -214,59 +234,57 @@ export default function PortfolioPage() {
               <span
                 className={clsx(
                   style.infoTextUsername,
-                  style[getColorByRole(mockResponse.roles[0])]
+                  style[getColorByRole(data.roles[0])]
                 )}
               >
-                @{mockResponse.userName}
+                @{data.userName}
               </span>
-              {mockResponse.descriptions}
+              {data.description}
             </div>
             <div className={style.infoProps}>
-              {mockResponse.gender && (
+              {data.gender && (
                 <FrostBadge
-                  icon={getIconByGender(mockResponse.gender)}
-                  text={getStringByGender(mockResponse.gender)}
+                  icon={getIconByGender(data.gender)}
+                  text={getStringByGender(data.gender)}
                 />
               )}
-              {mockResponse.birthday && (
-                <FrostBadge icon={<BiCake />} text={mockResponse.birthday} />
+              {data.birthday && (
+                <FrostBadge icon={<BiCake />} text={data.birthday} />
               )}
-              {mockResponse.zodiac && (
+              {data.zodiac && (
                 <FrostBadge
-                  icon={getIconByZodiac(mockResponse.zodiac)}
-                  text={getStringByZodiac(mockResponse.zodiac)}
+                  icon={getIconByZodiac(data.zodiac)}
+                  text={getStringByZodiac(data.zodiac)}
                 />
               )}
             </div>
             <div className={style.contacts}>
               {getContactsUI(
-                mockResponse.phone,
-                mockResponse.email,
-                mockResponse.facebook,
-                mockResponse.instagram,
-                mockResponse.tiktok,
-                mockResponse.linkedin,
-                mockResponse.github
+                data.phone,
+                data.email,
+                data.facebook,
+                data.instagram,
+                data.tiktok,
+                data.linkedin,
+                data.github
               )}
             </div>
           </div>
-          {mockResponse.quote && (
-            <div className={style.quote}>{mockResponse.quote}</div>
-          )}
+          {data.quote && <div className={style.quote}>{data.quote}</div>}
         </div>
-        {mockResponse.skills?.length !== 0 ? (
+        {data.skills?.length !== 0 ? (
           <div className={style.skills}>
             <div className={style.skillsTitle}>{AppStrings.skills}</div>
             <div className={style.skillsSection}>
-              {mockResponse.skills?.map((skill: Skill, index: number) => (
+              {data.skills?.map((skill: Skill, index: number) => (
                 <div key={index} className={style.skill}>
                   <div
                     className={clsx(
                       style.skillPercent,
-                      style[getColorByRole(mockResponse.roles[0])]
+                      style[getColorByRole(data.roles[0])]
                     )}
                   >
-                    <span id={skill.id as string}>
+                    <span id={skill.name as string}>
                       {skill.percent.toString()}
                     </span>
                     %
@@ -282,32 +300,26 @@ export default function PortfolioPage() {
         ) : null}
         <Background
           style={BackgroundStyle.dotted}
-          color={getColorByRole(mockResponse.roles[0])}
+          color={getColorByRole(data.roles[0])}
         />
-        <div
-          className={clsx(
-            style.movingBubble,
-            style[getColorByRole(mockResponse.roles[0])]
-          )}
-          id="Bubble"
-        ></div>
+        <MovingBubble color={getColorByRole(data.roles[0])} />
       </div>
       <SubSection>
-        {mockResponse.projects?.length !== 0 ? (
+        {data.projects?.length !== 0 ? (
           <div className={style.projects}>
             <div className={style.projectsHeading}>{AppStrings.projects}</div>
             <div className={style.projectsGrid}>
-              {mockResponse.projects?.map((project: Project, index: number) => (
+              {data.projects?.map((project: Project, index: number) => (
                 <div key={index} className={style.project}>
-                  {project.imageUrl && (
+                  {project.images && (
                     <div className={style.projectImage}>
-                      <img src={project.imageUrl as string} alt="" />
+                      <img src={project.images[0] as string} alt="" />
                     </div>
                   )}
                   <div
                     className={clsx(
                       style.projectContent,
-                      project.imageUrl ? style.animation : null
+                      project.images ? style.animation : null
                     )}
                   >
                     <div className={style.projectName}>{project.name}</div>
@@ -397,5 +409,7 @@ export default function PortfolioPage() {
         Creator <code>@Ming-doan</code> ©2023
       </div>
     </>
+  ) : (
+    <Loader />
   );
 }

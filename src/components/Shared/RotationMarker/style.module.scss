@@ -39,6 +39,16 @@
     &.yellow {
         fill: var(--color-yellow);
     }
+
+    &.black {
+        fill: var(--color-mate-black);
+    }
+
+    &.purple {
+        fill: var(--color-purple);
+    }
+
+    // NEW COLORS APPEND HERE 👇
 }
 
 .logo {

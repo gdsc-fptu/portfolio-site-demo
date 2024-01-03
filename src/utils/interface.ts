@@ -1,5 +1,4 @@
 export type Skill = {
-  id: String;
   name: String;
   percent: Number;
   description?: String;
@@ -9,19 +8,21 @@ export type Project = {
   name: String;
   description: String;
   startDate: String;
-  imageUrl?: String;
   endDate?: String;
   roles?: String[];
   technologies?: String[];
+  images?: String[];
+  syncId?: String | null;
 };
 
 export type User = {
+  id: String;
   userName: String;
   firstName: String;
   lastName: String;
   roles: String[];
   imageUrl: String;
-  descriptions: String;
+  description: String;
   gender: String;
   birthday?: String;
   zodiac?: String;
@@ -35,4 +36,9 @@ export type User = {
   quote?: String;
   skills?: Skill[];
   projects?: Project[];
+};
+
+export type ResponseObject = {
+  message: String;
+  data: User | User[] | null;
 };

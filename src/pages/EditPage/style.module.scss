@@ -1,0 +1,47 @@
+.accountContainer {
+    display: flex;
+    align-items: center;
+    padding: 0 2.3rem;
+    width: 100%;
+    font-size: 1.6rem;
+}
+
+.accountText {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+    flex: 1;
+}
+
+.accountAvatar {
+    width: 5rem;
+    height: 5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2.3rem;
+
+    & img {
+        width: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+}
+
+.form {
+    width: 100%;
+    padding: 0 2.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.3rem;
+}
+
+.submit {
+    width: 100%;
+    padding: 0 2.3rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}

@@ -1,0 +1,23 @@
+.field {
+    display: flex;
+    flex-direction: column;
+
+    & .multiField {
+        width: 100%;
+        display: flex;
+        gap: 2.3rem;
+
+        & .thisField {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+    }
+
+    & .fieldDesc {
+        font-size: 1.6rem;
+        color: var(--color-gray);
+        margin-top: .5rem;
+        font-weight: 500;
+    }
+}

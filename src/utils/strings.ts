@@ -11,4 +11,6 @@ export const AppStrings = {
   facebook: "https://www.facebook.com/gdsc.fptudn",
   instagram: "https://www.instagram.com/gdsc.fptu_/",
   tiktok: "https://www.tiktok.com/@gdsc.fptu_",
+  // Language
+  language: {},
 };

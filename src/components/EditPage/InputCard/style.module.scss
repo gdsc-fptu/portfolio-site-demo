@@ -1,0 +1,15 @@
+.card {
+    display: flex;
+    flex-direction: column;
+    gap: 2.3rem;
+
+    & .cardTitle {
+        font-size: 1.6rem;
+        color: var(--color-text);
+        font-weight: 700;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}

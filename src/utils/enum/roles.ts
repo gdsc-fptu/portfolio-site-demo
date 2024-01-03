@@ -1,5 +1,7 @@
 import { GoogleColor } from "./color";
 
+export const RolesList = ["HR", "BUSI", "TECH", "MEDEV"];
+
 export enum Roles {
   hr = "HR",
   busi = "BUSI",

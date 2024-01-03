@@ -4,6 +4,8 @@ import {
   BsGenderAmbiguous,
 } from "react-icons/bs";
 
+export const GenderList = ["MALE", "FEMALE"];
+
 enum Gender {
   male = "MALE",
   female = "FEMALE",

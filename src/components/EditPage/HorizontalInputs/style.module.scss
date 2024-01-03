@@ -1,0 +1,10 @@
+.horizontal {
+    width: 100%;
+    overflow-x: auto;
+    
+    & .horizontalContainer {
+        width: max-content;
+        display: flex;
+        gap: 2.3rem;
+    }
+}

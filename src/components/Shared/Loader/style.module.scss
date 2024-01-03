@@ -1,0 +1,28 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+}
+
+.gif {
+    width: 15rem;
+}
+
+.progress {
+    width: 15rem;
+    height: .3rem;
+    background-color: #e0e0e0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.progressBar {
+    height: 100%;
+    background-color: black;
+    border-radius: 0.5rem;
+    transition: .5s ease-in-out;
+}

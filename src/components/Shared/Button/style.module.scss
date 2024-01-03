@@ -1,0 +1,81 @@
+.btn {
+    padding: 1.6rem 2.3rem;
+    outline: none;
+    border: none;
+    border-radius: 2.6rem;
+    background-color: var(--color-black);
+    color: var(--color-white);
+    font-size: 1.4rem;
+    font-family: inherit;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    transition: all .2s ease-in-out;
+    cursor: pointer;
+
+    &:disabled {
+        opacity: .5;
+        cursor: not-allowed;
+    }
+
+    &:hover {
+        box-shadow: 0 .5rem 1rem 0 var(--color-mate-black);
+    }
+
+    &_red {
+        @extend .btn;
+        background-color: var(--color-red);
+
+        &:hover {
+            box-shadow: 0 .5rem 1rem 0 var(--color-red);
+        }
+    }
+
+    &_green {
+        @extend .btn;
+        background-color: var(--color-green);
+
+        &:hover {
+            box-shadow: 0 .5rem 1rem 0 var(--color-green);
+        }
+    }
+
+    &_blue {
+        @extend .btn;
+        background-color: var(--color-blue);
+
+        &:hover {
+            box-shadow: 0 .5rem 1rem 0 var(--color-blue);
+        }
+    }
+
+    &_yellow {
+        @extend .btn;
+        background-color: var(--color-yellow);
+
+        &:hover {
+            box-shadow: 0 .5rem 1rem 0 var(--color-yellow);
+        }
+    }
+
+    &_black {
+        @extend .btn;
+        background-color: var(--color-mate-black);
+
+        &:hover {
+            box-shadow: 0 .5rem 1rem 0 var(--color-mate-black);
+        }
+    }
+
+    &_purple {
+        @extend .btn;
+        background-color: var(--color-purple);
+
+        &:hover {
+            box-shadow: 0 .5rem 1rem 0 var(--color-purple);
+        }
+    }
+
+    // NEW COLORS APPEND HERE 👇
+}

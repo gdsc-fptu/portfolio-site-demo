@@ -1,0 +1,43 @@
+.movingBubble {
+    position: fixed;
+    inset: 3rem auto auto 3rem;
+    width: 45rem;
+    height: 45rem;
+    z-index: -2;
+    border-radius: 100%;
+    opacity: .4;
+    filter: blur(15rem);
+    transition: background-color 0.2s ease-in-out;
+
+    &.red {
+        @extend .movingBubble;
+        background-color: var(--color-red);
+    }
+
+    &.green {
+        @extend .movingBubble;
+        background-color: var(--color-green);
+    }
+
+    &.blue {
+        @extend .movingBubble;
+        background-color: var(--color-blue);
+    }
+
+    &.yellow {
+        @extend .movingBubble;
+        background-color: var(--color-yellow);
+    }
+
+    &.black {
+        @extend .movingBubble;
+        background-color: var(--color-mate-black);
+    }
+
+    &.purple {
+        @extend .movingBubble;
+        background-color: var(--color-purple);
+    }
+
+    // NEW COLORS APPEND HERE 👇
+}

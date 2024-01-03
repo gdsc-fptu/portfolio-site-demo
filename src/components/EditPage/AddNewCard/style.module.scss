@@ -1,0 +1,17 @@
+.newCardButton {
+    min-height: 8rem;
+    outline: none;
+    border: 1px dashed var(--color-gray);
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 1rem;
+    cursor: pointer;
+    transition: all .2s ease-in-out;
+    font-family: inherit;
+
+    &:hover {
+        background-color: #00000010;
+    }
+}

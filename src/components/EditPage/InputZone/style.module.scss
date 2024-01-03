@@ -1,0 +1,14 @@
+.zone {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2.3em;
+
+    & .zoneText {
+        font-size: 2rem;
+        font-weight: 500;
+        color: var(--color-text);
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+}
