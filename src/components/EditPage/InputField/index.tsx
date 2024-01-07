@@ -1,5 +1,6 @@
 // @ts-ignore
 import style from "./style.module.scss";
+import { AppStrings } from "../../../utils/strings";
 
 type InputFieldProps = {
   desc?: string;
@@ -33,7 +34,13 @@ export default function InputField({
         )}
       </div>
       <div className={style.fieldDesc}>
-        {desc} {example ? <i>Example: {example}</i> : null}
+        {desc}{" "}
+        {example ? (
+          <i>
+            {AppStrings.language.editPage.example}
+            {example}
+          </i>
+        ) : null}
       </div>
     </div>
   );

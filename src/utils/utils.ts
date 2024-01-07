@@ -1,6 +1,7 @@
 import Resizer from "react-image-file-resizer";
 // @ts-ignore
 import { v4 as uuidv4 } from "uuid";
+import { GoogleColor, getHexByColor } from "./enum/color";
 
 export function incEltNbr(elt: HTMLElement, value: number, speed: number = 10) {
   function incNbrRec(i: number, endNbr: number, elt: HTMLElement) {
@@ -37,7 +38,11 @@ export function getTodayDate() {
   const mm = today.getMonth() + 1; //January is 0!
   const yyyy = today.getFullYear();
 
-  return yyyy + "-" + mm + "-" + dd;
+  // Format date and month
+  const ddStr = dd < 10 ? `0${dd}` : dd;
+  const mmStr = mm < 10 ? `0${mm}` : mm;
+
+  return yyyy + "-" + mmStr + "-" + ddStr;
 }
 
 export function getHorizontalItemWidthResponsive() {
@@ -78,6 +83,31 @@ export async function downloadImage(url: string): Promise<File> {
   return file;
 }
 
-export function isASCII(str: string) {
-  return /^[\x00-\x7F]*$/.test(str);
+export function isASCII(str: String) {
+  return /^[\x00-\x7F]*$/.test(str as string);
+}
+
+export function getMUIGlobalTheme(color?: GoogleColor) {
+  if (!color) {
+    color = GoogleColor.black;
+  }
+  return {
+    palette: {
+      primary: {
+        main: `#${getHexByColor(color)}`,
+      },
+    },
+    typography: {
+      fontSize: 16,
+      subtitle1: {
+        fontSize: 16,
+      },
+      body1: {
+        fontSize: 20,
+      },
+      button: {
+        fontSize: 14,
+      },
+    },
+  };
 }

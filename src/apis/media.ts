@@ -4,19 +4,30 @@ import { Apis } from "../utils/constant";
 export async function removeBackground(file: File) {
   const formData = new FormData();
   formData.append("image", file);
-  return await apiHelper.postFormData(Apis.removeBackground, formData);
+  const response = await apiHelper.postFormData(
+    Apis.removeBackground,
+    formData
+  );
+  console.info(response.message);
+  return response.data;
 }
 
 export async function getImage(path: String) {
-  return await apiHelper.post(Apis.readImage, { path });
+  const response = await apiHelper.post(Apis.readImage, { path });
+  console.info(response.message);
+  return response.data;
 }
 
 export async function uploadImage(file: File): Promise<any> {
   const formData = new FormData();
   formData.append("file", file);
-  return await apiHelper.postFormData(Apis.uploadImage, formData);
+  const response = await apiHelper.postFormData(Apis.uploadImage, formData);
+  console.info(response.message);
+  return response.data;
 }
 
 export async function deleteImage(url: string) {
-  return await apiHelper.post(Apis.deleteImage, { path: url });
+  const response = await apiHelper.post(Apis.deleteImage, { path: url });
+  console.info(response.message);
+  return response.data;
 }

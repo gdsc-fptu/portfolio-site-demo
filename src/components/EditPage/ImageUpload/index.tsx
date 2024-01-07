@@ -7,15 +7,16 @@ import { IoCloudUploadSharp } from "react-icons/io5";
 import { MdDelete } from "react-icons/md";
 import { resizeImage } from "../../../utils/utils";
 import { ACCEPTED_TYPES, FILE_SIZE_LIMIT } from "../../../utils/constant";
+import { AppStrings } from "../../../utils/strings";
 
 type ImageUploadButtonProps = {
   image?: String | string;
   width?: number;
   height?: number;
   children?: React.ReactNode;
-  onUpload?: (file: File) => Promise<void | string>;
+  onUpload?: (file: File) => Promise<void | String>;
   onDelete?: () => Promise<void>;
-  onEdit?: () => Promise<void | string>;
+  onEdit?: () => Promise<void | String>;
 };
 export default function ImageUploadButton({
   image,
@@ -100,7 +101,8 @@ export default function ImageUploadButton({
             ) : (
               <div className={style.content}>
                 <IoCloudUploadSharp size={28} />
-                Upload Image {currentFile?.name}
+                {AppStrings.language.editPage.image.uploadBtn}{" "}
+                {currentFile?.name}
               </div>
             )}
           </div>

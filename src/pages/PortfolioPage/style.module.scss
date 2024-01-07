@@ -6,6 +6,12 @@
     scroll-snap-type: y proximity;
 }
 
+.userContainer {
+    z-index: 9;
+    position: fixed;
+    inset: 2rem 2rem auto auto;
+}
+
 @media only screen and (max-width: 480px) {
     .container {
         padding: 0;

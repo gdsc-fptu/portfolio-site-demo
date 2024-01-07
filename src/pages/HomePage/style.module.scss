@@ -9,6 +9,12 @@
     overflow: hidden;
 }
 
+.userContainer {
+    z-index: 5;
+    position: fixed;
+    inset: 2rem 2rem auto auto
+}
+
 .top,
 .middle,
 .bottom,

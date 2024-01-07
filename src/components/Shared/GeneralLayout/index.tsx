@@ -5,11 +5,12 @@ import logo from "../../../assets/brands/logo.png";
 import Background from "../Background";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import LinearProgress from "@mui/material/LinearProgress";
-import { GoogleColor, getHexByColor } from "../../../utils/enum/color";
+import { GoogleColor } from "../../../utils/enum/color";
+import { getMUIGlobalTheme } from "../../../utils/utils";
 
 type GeneralLayoutProps = {
   children?: React.ReactNode | React.ReactNode[];
-  isLoading?: boolean;
+  isLoading?: Boolean;
   color?: GoogleColor;
 };
 export default function GeneralLayout({
@@ -17,27 +18,8 @@ export default function GeneralLayout({
   isLoading = false,
   color = GoogleColor.black,
 }: GeneralLayoutProps) {
-  const theme = {
-    palette: {
-      primary: {
-        main: `#${getHexByColor(color)}`,
-      },
-    },
-    typography: {
-      fontSize: 16,
-      subtitle1: {
-        fontSize: 16,
-      },
-      body1: {
-        fontSize: 20,
-      },
-      button: {
-        fontSize: 14,
-      },
-    },
-  };
   return (
-    <ThemeProvider theme={createTheme(theme)}>
+    <ThemeProvider theme={createTheme(getMUIGlobalTheme(color))}>
       <div className={style.container}>
         {isLoading ? (
           <div className={style.progress}>

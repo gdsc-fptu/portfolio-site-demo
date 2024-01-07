@@ -1,15 +1,9 @@
 // @ts-ignore
 import style from "./style.module.scss";
+
+// Import React modules
 import { Fragment, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AddNewCardButton from "../../components/EditPage/AddNewCard";
-import HorizontalInputs from "../../components/EditPage/HorizontalInputs";
-import InputCard from "../../components/EditPage/InputCard";
-import InputField from "../../components/EditPage/InputField";
-import InputZone from "../../components/EditPage/InputZone";
-import ImageUploadButton from "../../components/EditPage/ImageUpload";
-import Loader from "../../components/Shared/Loader";
-import GeneralLayout from "../../components/Shared/GeneralLayout";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -19,7 +13,16 @@ import Chip from "@mui/material/Chip";
 import Switch from "@mui/material/Switch";
 import Typography from "@mui/material/Typography";
 import { IoAddSharp } from "react-icons/io5";
-import { mockResponse } from "../../utils/mock";
+
+// Import custom components
+import AddNewCardButton from "../../components/EditPage/AddNewCard";
+import HorizontalInputs from "../../components/EditPage/HorizontalInputs";
+import InputCard from "../../components/EditPage/InputCard";
+import InputField from "../../components/EditPage/InputField";
+import InputZone from "../../components/EditPage/InputZone";
+import ImageUploadButton from "../../components/EditPage/ImageUpload";
+import Loader from "../../components/Shared/Loader";
+import GeneralLayout from "../../components/Shared/GeneralLayout";
 import { getHexByColor } from "../../utils/enum/color";
 import {
   RolesList,
@@ -33,34 +36,59 @@ import {
   getZodiacByBirthday,
 } from "../../utils/enum/zodiac";
 import { PROJECT_INITIALIZE, SKILL_INITIALIZE } from "../../utils/constant";
-import { downloadImage } from "../../utils/utils";
-import {
-  deleteImage,
-  getImage,
-  removeBackground,
-  uploadImage,
-} from "../../apis/media";
-import { getCurrentUser, loginWithGoogle } from "../../apis/user";
-import { getPost } from "../../apis/read";
+import { AccountUser, User } from "../../utils/interface";
+import { AppStrings } from "../../utils/strings";
+
+// Import custom hooks & context
+import useAppStore from "../../context/store";
+import { GoogleLoginButton, GoogleResponse } from "../../utils/googleAuth";
+import { deleteImage } from "../../apis/media";
+import { verifyGoogleAccount } from "../../apis/user";
 import { updatePost } from "../../apis/update";
+import { fetchPortfolioData } from "../../logic/getPortfolio";
+import { processUploadImage } from "../../logic/uploadImage";
+import { processGetUser } from "../../logic/getAccountUser";
 
 export default function EditPage() {
-  const [currentUser, setCurrentUser] = useState({} as any);
-  const [form, setForm] = useState(mockResponse);
-  const [isRembg, setRembg] = useState(true);
-  const [previewImg, setPreviewImg] = useState("");
-  const [isSaving, setSaving] = useState(false);
+  /**
+   * States
+   */
+  const [saving, setSaving] = useState<Boolean>(false);
+  const [form, setForm] = useState<User>({} as User);
+  const [previewImg, setPreviewImg] = useState<String>("");
+  const [isRembg, setRembg] = useState<Boolean>(true);
+  // Account User Global state
+  const user = useAppStore((state) => state.user);
+  const setUser = useAppStore((state) => state.setUser);
   const navigator = useNavigate();
 
-  async function handleLoginToAnotherAccount() {
-    await loginWithGoogle();
-    window.location.reload();
+  function handleSetPageDataAfterLogin(
+    user: AccountUser,
+    data: User | null,
+    imageUrl: String | null
+  ) {
+    // Set data to state
+    if (data) {
+      setForm(() => data);
+    }
+    if (imageUrl) {
+      setPreviewImg(imageUrl);
+    }
+    setUser(user);
   }
 
+  async function handleLoginToAnotherAccount(response: GoogleResponse) {
+    const userData = await verifyGoogleAccount(response.access_token);
+    const { data, imageUrl } = await fetchPortfolioData(userData.userName);
+    handleSetPageDataAfterLogin(userData, data, imageUrl);
+  }
+
+  /**
+   * Form State Handlers
+   */
   function handleSetForm(key: string, value: any) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
-
   function handleSetFormArray(key: string, index: number, value: any) {
     setForm((prev: any) => ({
       ...prev,
@@ -69,14 +97,12 @@ export default function EditPage() {
       ),
     }));
   }
-
   function handleSetFormArrayPush(key: string, value: any) {
     setForm((prev: any) => ({
       ...prev,
       [key]: [...prev[key], value],
     }));
   }
-
   function handleSetFormArrayRemove(key: string, index: number) {
     setForm((prev: any) => ({
       ...prev,
@@ -84,45 +110,32 @@ export default function EditPage() {
     }));
   }
 
+  /**
+   * Image Handlers
+   */
   async function handleUploadImage(file: File) {
-    // Set state
     setSaving(true);
-    // Resize image
-    if (isRembg) {
-      const data = await removeBackground(file);
-      file = await downloadImage((data as any).image);
-    }
-    // Upload image
-    const res = await uploadImage(file);
-    handleSetForm("imageUrl", res.fullPath);
-    // Update portfolio image
-    const newForm = {
+    const { imagePath, imageUrl } = await processUploadImage(file, isRembg);
+    handleSetForm("imageUrl", imagePath);
+    updatePost(form.id, {
       ...form,
-      imageUrl: res.fullPath,
-    };
-    updatePost(form.id, newForm).then((_) => {
-      setSaving(false);
-    });
-    return res.imageUrl;
+      imageUrl: imagePath,
+    } as User).then(() => setSaving(false));
+    return imageUrl;
   }
-
   async function handleDeleteImage() {
-    // Set state
     setSaving(true);
-    // Delete image
-    deleteImage(form.imageUrl as string);
-    // Update portfolio image
+    await deleteImage(form.imageUrl as string);
     handleSetForm("imageUrl", "");
-    // Update portfolio image
-    const newForm = {
+    updatePost(form.id, {
       ...form,
       imageUrl: "",
-    };
-    updatePost(form.id, newForm).then((_) => {
-      setSaving(false);
-    });
+    } as User).then(() => setSaving(false));
   }
 
+  /**
+   * Form Handlers
+   */
   function handleSubmit() {
     setSaving(true);
     updatePost(form.id, form).then((_) => {
@@ -130,96 +143,92 @@ export default function EditPage() {
       navigator(`/${form.userName}`);
     });
   }
-
   function handleCancel() {
     navigator(`/${form.userName}`);
   }
 
   useEffect(() => {
-    // Get current logged in user
-    getCurrentUser().then((user) => {
-      // If user is not logged in, redirect to login page
-      if (!user) {
-        navigator("/login");
-      } else {
-        // If user is new, redirect to creating page
-        if ((user as any).userName === "") {
-          navigator("/create");
-        } else {
-          // Fetch portfolio data
-          getPost((user as any).userName, true, false).then((userData) => {
-            // If portfolio data is not found, redirect to 404 page
-            if (userData) {
-              if (userData.imageUrl) {
-                // Get image url
-                getImage(userData.imageUrl).then((url) => {
-                  // Set data to state
-                  setPreviewImg(url as string);
-                  setForm(userData);
-                  setCurrentUser(user);
-                });
-              } else {
-                setForm(userData);
-                setCurrentUser(user);
-              }
-            } else {
-              navigator("/404");
-            }
-          });
-        }
-      }
-    });
+    const onNotLoggedIn = () => {
+      navigator("/login");
+    };
+    const onNewUser = () => {
+      navigator("/create");
+    };
+    const onNotFound = () => {
+      navigator("/404");
+    };
+    const onGetUser = (data: User | null, imageUrl: String | null) => {
+      handleSetPageDataAfterLogin(user as AccountUser, data, imageUrl);
+    };
+    processGetUser(user, onNotLoggedIn, onNewUser, onGetUser, onNotFound).then(
+      (responseUser) => setUser(responseUser as AccountUser)
+    );
   }, []);
 
-  return Object.keys(currentUser).length !== 0 ? (
+  return Object.keys(form).length !== 0 ? (
     <GeneralLayout
-      isLoading={isSaving}
+      isLoading={saving}
       color={getColorByRole(form.roles[0] ?? "black")}
     >
       <div className={style.accountContainer}>
         <div className={style.accountText}>
           <span>
-            You are currently logged in as
+            {AppStrings.language.editPage.accountDescription}
             <code>
-              <b> @{currentUser?.userName}</b>
+              <b> @{user?.userName}</b>
             </code>
           </span>
-          <h1>{currentUser?.name}</h1>
-          <Button color="primary" onClick={handleLoginToAnotherAccount}>
-            Login to another account
-          </Button>
+          <h1>{user?.name}</h1>
+          <GoogleLoginButton
+            onSuccess={(response) => {
+              setSaving(true);
+              handleLoginToAnotherAccount(response).then(() => {
+                setSaving(false);
+              });
+            }}
+          >
+            <Button color="primary">
+              {AppStrings.language.editPage.reloginBtn}
+            </Button>
+          </GoogleLoginButton>
         </div>
         <div className={style.accountAvatar}>
-          <img src={currentUser?.avatar} alt="Avatar" />
+          <img src={user?.avatar as string} alt="Avatar" />
         </div>
       </div>
       <div className={style.form}>
-        <InputZone title="Basic information">
+        <InputZone title={AppStrings.language.editPage.basicInfo.title}>
           {/* FirstName, firstName */}
-          <InputField desc="Enter your first name." example="Đinh Trần">
+          <InputField
+            desc={AppStrings.language.editPage.basicInfo.firstNameDesc}
+            example="Đinh Trần"
+          >
             <TextField
               variant="standard"
-              label="First Name"
+              label={AppStrings.language.editPage.basicInfo.firstName}
               defaultValue={form.firstName}
               onChange={(e) => handleSetForm("firstName", e.target.value)}
             />
           </InputField>
 
           {/* LastName, lastName */}
-          <InputField desc="Enter your last name." example="Yến Vy">
+          <InputField
+            desc={AppStrings.language.editPage.basicInfo.lastNameDesc}
+            example="Yến Vy"
+          >
             <TextField
               variant="standard"
-              label="Last Name"
+              label={AppStrings.language.editPage.basicInfo.lastName}
               defaultValue={form.lastName}
               onChange={(e) => handleSetForm("lastName", e.target.value)}
             />
           </InputField>
 
           {/* Bio, description */}
-          <InputField desc="Enter your bio,">
+          <InputField desc={AppStrings.language.editPage.basicInfo.bio}>
             <TextField
               variant="standard"
-              label="Bio"
+              label={AppStrings.language.editPage.basicInfo.bio}
               multiline
               maxRows={3}
               defaultValue={form.description}
@@ -228,7 +237,7 @@ export default function EditPage() {
           </InputField>
 
           {/* Roles, roles */}
-          <InputField desc="Select your roles in GDSC.">
+          <InputField desc={AppStrings.language.editPage.basicInfo.rolesDesc}>
             <Select
               labelId="select-roles"
               id="select-roles"
@@ -263,7 +272,7 @@ export default function EditPage() {
           </InputField>
 
           {/* Gender, gender */}
-          <InputField desc="Select your biological gender.">
+          <InputField desc={AppStrings.language.editPage.basicInfo.genderDesc}>
             <Select
               variant="standard"
               value={form.gender}
@@ -279,8 +288,8 @@ export default function EditPage() {
 
           {/* Birthday, birthday, Zodiac, zodiac */}
           <InputField
-            desc="Enter your Birthday & Zodiac"
-            example="Format mm/dd/yyyy"
+            desc={AppStrings.language.editPage.basicInfo.birthdayAndZodicDesc}
+            example="mm/dd/yyyy"
           >
             <TextField
               variant="standard"
@@ -305,10 +314,7 @@ export default function EditPage() {
           </InputField>
 
           {/* Quote, quote */}
-          <InputField
-            desc="Enter your favorite quote."
-            example="We are happy if you provided the author of the the quote."
-          >
+          <InputField desc={AppStrings.language.editPage.basicInfo.quoteDesc}>
             <TextField
               variant="standard"
               label="Favorite Quote"
@@ -320,9 +326,11 @@ export default function EditPage() {
           </InputField>
         </InputZone>
 
-        <InputZone title="Image">
+        <InputZone title={AppStrings.language.editPage.image.title}>
           <span>
-            <Typography variant="button">Remove Background</Typography>
+            <Typography variant="button">
+              {AppStrings.language.editPage.image.removeBackground}
+            </Typography>
             <Switch
               size="small"
               defaultChecked
@@ -337,69 +345,69 @@ export default function EditPage() {
           />
         </InputZone>
 
-        <InputZone title="Contact information">
+        <InputZone title={AppStrings.language.editPage.contact.title}>
           {/* Email, email */}
-          <InputField desc="Enter your email address.">
+          <InputField desc={AppStrings.language.editPage.contact.emailDesc}>
             <TextField
               variant="standard"
-              label="Email"
+              label={AppStrings.language.editPage.contact.email}
               defaultValue={form.email}
               onChange={(e) => handleSetForm("email", e.target.value)}
             />
           </InputField>
 
           {/* Phone, phone */}
-          <InputField desc="Enter your phone number.">
+          <InputField desc={AppStrings.language.editPage.contact.phoneDesc}>
             <TextField
               variant="standard"
-              label="Phone"
+              label={AppStrings.language.editPage.contact.phone}
               defaultValue={form.phone}
               onChange={(e) => handleSetForm("phone", e.target.value)}
             />
           </InputField>
 
           {/* Facebook, facebook */}
-          <InputField desc="Enter your Facebook URL.">
+          <InputField desc={AppStrings.language.editPage.contact.facebookDesc}>
             <TextField
               variant="standard"
-              label="Facebook"
+              label={AppStrings.language.editPage.contact.facebook}
               defaultValue={form.facebook}
               onChange={(e) => handleSetForm("facebook", e.target.value)}
             />
           </InputField>
 
           {/* Instagram, instagram */}
-          <InputField desc="Enter your Instagram URL.">
+          <InputField desc={AppStrings.language.editPage.contact.instagramDesc}>
             <TextField
               variant="standard"
-              label="Instagram"
+              label={AppStrings.language.editPage.contact.instagram}
               defaultValue={form.instagram}
               onChange={(e) => handleSetForm("instagram", e.target.value)}
             />
           </InputField>
 
           {/* Linkedin, linkedin */}
-          <InputField desc="Enter your LinkedIn URL.">
+          <InputField desc={AppStrings.language.editPage.contact.linkedinDesc}>
             <TextField
               variant="standard"
-              label="LinkedIn"
+              label={AppStrings.language.editPage.contact.linkedin}
               defaultValue={form.linkedin}
               onChange={(e) => handleSetForm("linkedin", e.target.value)}
             />
           </InputField>
 
           {/* Github, github */}
-          <InputField desc="Enter your Github URL.">
+          <InputField desc={AppStrings.language.editPage.contact.githubDesc}>
             <TextField
               variant="standard"
-              label="Github"
+              label={AppStrings.language.editPage.contact.github}
               defaultValue={form.github}
               onChange={(e) => handleSetForm("github", e.target.value)}
             />
           </InputField>
         </InputZone>
 
-        <InputZone title="Skills">
+        <InputZone title={AppStrings.language.editPage.skill.title}>
           <HorizontalInputs
             button={
               <AddNewCardButton
@@ -408,21 +416,27 @@ export default function EditPage() {
                 }
               >
                 <IoAddSharp size={20} />
-                <h3>Add new skills</h3>
+                <h3>{AppStrings.language.editPage.skill.addBtn}</h3>
               </AddNewCardButton>
             }
           >
             {form.skills?.map((skill, index) => (
               <Fragment key={index}>
                 <InputCard
-                  title={`Skill ${index + 1}`}
+                  title={`${AppStrings.language.editPage.skill.title} ${
+                    index + 1
+                  }`}
                   onDelete={() => handleSetFormArrayRemove("skills", index)}
                 >
                   {/* Skill Name, skills, name */}
-                  <InputField desc={`Enter your #${index + 1} skill name.`}>
+                  <InputField
+                    desc={AppStrings.language.editPage.skill.nameDesc(
+                      index + 1
+                    )}
+                  >
                     <TextField
                       variant="standard"
-                      label="Name"
+                      label={AppStrings.language.editPage.skill.name}
                       defaultValue={skill.name}
                       onChange={(e) =>
                         handleSetFormArray(
@@ -438,12 +452,14 @@ export default function EditPage() {
 
                   {/* Skill Percentage, skills, percent */}
                   <InputField
-                    desc={`Enter your #${index + 1} skill percentage.`}
+                    desc={AppStrings.language.editPage.skill.percentDesc(
+                      index + 1
+                    )}
                   >
                     <TextField
                       type="number"
                       variant="standard"
-                      label="Percentage"
+                      label={AppStrings.language.editPage.skill.percent}
                       defaultValue={skill.percent}
                       onChange={(e) =>
                         handleSetFormArray(
@@ -459,11 +475,13 @@ export default function EditPage() {
 
                   {/* Skill Description, skills, description */}
                   <InputField
-                    desc={`Enter your #${index + 1} skill description.`}
+                    desc={AppStrings.language.editPage.skill.descDesc(
+                      index + 1
+                    )}
                   >
                     <TextField
                       variant="standard"
-                      label="Description"
+                      label={AppStrings.language.editPage.skill.desc}
                       multiline
                       maxRows={3}
                       defaultValue={skill.description}
@@ -483,7 +501,7 @@ export default function EditPage() {
             ))}
           </HorizontalInputs>
         </InputZone>
-        <InputZone title="Projects">
+        <InputZone title={AppStrings.language.editPage.project.title}>
           <HorizontalInputs
             button={
               <AddNewCardButton
@@ -492,21 +510,27 @@ export default function EditPage() {
                 }
               >
                 <IoAddSharp size={20} />
-                <h3>Add new projects</h3>
+                <h3>{AppStrings.language.editPage.project.addBtn}</h3>
               </AddNewCardButton>
             }
           >
             {form.projects?.map((project, index) => (
               <Fragment key={index}>
                 <InputCard
-                  title={`Project ${index + 1}`}
+                  title={`${AppStrings.language.editPage.project.title} ${
+                    index + 1
+                  }`}
                   onDelete={() => handleSetFormArrayRemove("projects", index)}
                 >
                   {/* Project Name, projects, name */}
-                  <InputField desc={`Enter your #${index + 1} project name.`}>
+                  <InputField
+                    desc={AppStrings.language.editPage.project.nameDesc(
+                      index + 1
+                    )}
+                  >
                     <TextField
                       variant="standard"
-                      label="Name"
+                      label={AppStrings.language.editPage.project.name}
                       defaultValue={project.name}
                       onChange={(e) =>
                         handleSetFormArray(
@@ -522,11 +546,13 @@ export default function EditPage() {
 
                   {/* Project Description, porjects, description */}
                   <InputField
-                    desc={`Enter your #${index + 1} project description.`}
+                    desc={AppStrings.language.editPage.project.descDesc(
+                      index + 1
+                    )}
                   >
                     <TextField
                       variant="standard"
-                      label="Description"
+                      label={AppStrings.language.editPage.project.desc}
                       multiline
                       maxRows={3}
                       defaultValue={project.description}
@@ -544,12 +570,14 @@ export default function EditPage() {
 
                   {/* Project Start Date, projects, startDate */}
                   <InputField
-                    desc={`Select your #${index + 1} project start date.`}
+                    desc={AppStrings.language.editPage.project.startDateDesc(
+                      index + 1
+                    )}
                   >
                     <TextField
                       type="date"
                       variant="standard"
-                      label="Start Date"
+                      label={AppStrings.language.editPage.project.startDate}
                       defaultValue={project.startDate}
                       onChange={(e) =>
                         handleSetFormArray(
@@ -565,12 +593,14 @@ export default function EditPage() {
 
                   {/* Project End Date, projects, endDate */}
                   <InputField
-                    desc={`Select your #${index + 1} project end date.`}
+                    desc={AppStrings.language.editPage.project.endDateDesc(
+                      index + 1
+                    )}
                   >
                     <TextField
                       type="date"
                       variant="standard"
-                      label="End Date"
+                      label={AppStrings.language.editPage.project.endDate}
                       defaultValue={project.endDate}
                       onChange={(e) =>
                         handleSetFormArray(
@@ -585,10 +615,14 @@ export default function EditPage() {
                   </InputField>
 
                   {/* Project Roles, projects, roles */}
-                  <InputField desc={`Enter your #${index + 1} project roles.`}>
+                  <InputField
+                    desc={AppStrings.language.editPage.project.rolesDesc(
+                      index + 1
+                    )}
+                  >
                     <TextField
                       variant="standard"
-                      label="Roles"
+                      label={AppStrings.language.editPage.project.roles}
                       defaultValue={project.roles?.join(", ")}
                       onChange={(e) =>
                         handleSetFormArray(
@@ -606,11 +640,13 @@ export default function EditPage() {
 
                   {/* Project Technologies, projects, technologies */}
                   <InputField
-                    desc={`Enter your #${index + 1} project technologies.`}
+                    desc={AppStrings.language.editPage.project.technologiesDesc(
+                      index + 1
+                    )}
                   >
                     <TextField
                       variant="standard"
-                      label="Technologies"
+                      label={AppStrings.language.editPage.project.technologies}
                       defaultValue={project.technologies?.join(", ")}
                       onChange={(e) =>
                         handleSetFormArray(
@@ -636,17 +672,17 @@ export default function EditPage() {
           variant="text"
           color="primary"
           onClick={handleCancel}
-          disabled={isSaving}
+          disabled={saving as boolean}
         >
-          Cancel
+          {AppStrings.language.editPage.cancelBtn}
         </Button>
         <Button
           variant="contained"
           color="primary"
           onClick={handleSubmit}
-          disabled={isSaving}
+          disabled={saving as boolean}
         >
-          Save changed
+          {AppStrings.language.editPage.submitBtn}
         </Button>
       </div>
     </GeneralLayout>

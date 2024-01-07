@@ -14,7 +14,6 @@ export const Apis = {
   readImage: `${BASE_URL}/api/media`,
   uploadImage: `${BASE_URL}/api/media/upload`,
   deleteImage: `${BASE_URL}/api/media/delete`,
-  login: `${BASE_URL_3}/api/auth/google`,
   currentUser: `${BASE_URL_3}/api/auth/me`,
   verify: `${BASE_URL_3}/api/auth/verify`,
   logout: `${BASE_URL_3}/api/auth/logout`,

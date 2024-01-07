@@ -42,3 +42,13 @@ export type ResponseObject = {
   message: String;
   data: User | User[] | null;
 };
+
+export type AccountUser = {
+  id: String;
+  userName: String;
+  name: String;
+  email: String;
+  avatar: String;
+  admin: Boolean;
+  createDate: String;
+};

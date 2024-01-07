@@ -1,92 +1,91 @@
 // @ts-ignore
 import style from "./style.module.scss";
-import { useState } from "react";
+
+// Import React modules
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import GeneralLayout from "../../components/Shared/GeneralLayout";
-import AppButton from "../../components/Shared/Button";
-import Spacer from "../../components/Shared/Spacer";
 import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
 import { IoAddOutline } from "react-icons/io5";
-import { PRESERVE_KEYWORDS } from "../../utils/constant";
-import { isASCII } from "../../utils/utils";
-import { checkUserAvailability, createPortfolio } from "../../apis/user";
+
+// Import custom components
+import GeneralLayout from "../../components/Shared/GeneralLayout";
+import AppButton from "../../components/Shared/Button";
+import Spacer from "../../components/Shared/Spacer";
+import { AppStrings } from "../../utils/strings";
+
+// Import APIs
+import { createPortfolio } from "../../apis/user";
+import { checkUserNameAvailability } from "../../logic/checkUserNameAvailability";
+import useAppStore from "../../context/store";
 
 export default function CreateUserPage() {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [userName, setUserName] = useState<string>("");
-  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<Boolean>(false);
+  const [checking, setChecking] = useState<Boolean>(false);
+  const [userName, setUserName] = useState<String>("");
+  const [error, setError] = useState<String | null>(null);
+  const user = useAppStore((state) => state.user);
   const navigator = useNavigate();
 
   function handleSetUserName(e: React.ChangeEvent<HTMLInputElement>) {
     setUserName(e.target.value);
   }
 
-  async function handleCheckUnqiue(): Promise<boolean> {
-    if (userName === "") {
-      setError("User Name is required");
-      return false;
-    }
-    if (userName.includes(" ")) {
-      setError("User Name must not contain space");
-      return false;
-    }
-    if (PRESERVE_KEYWORDS.includes(userName)) {
-      setError(`User Name must not contain ${PRESERVE_KEYWORDS.join(", ")}`);
-      return false;
-    }
-    if (!isASCII(userName)) {
-      setError("User Name must not contain special character");
-      return false;
-    }
-    if (!(await checkUserAvailability(userName))) {
-      setError("User Name is already taken");
-      return false;
-    }
-    setError("");
-    return true;
+  function handleCheckUnqiue() {
+    setChecking(true);
+    checkUserNameAvailability(userName, (error) => setError(error)).then(() =>
+      setChecking(false)
+    );
+  }
+
+  function isButtonDisabled() {
+    if (loading) return true;
+    if (checking) return true;
+    if (userName === "") return true;
+    if (error) return true;
+    return false;
   }
 
   function handleCreateUser() {
     setLoading(true);
-    if (error === "" && userName !== "") {
+    if (!error && userName !== "") {
       createPortfolio(userName).then(() => {
+        navigator("/edit");
         setLoading(false);
-        navigator(`/edit`);
       });
     }
   }
 
+  useEffect(() => {
+    if (!user) {
+      navigator("/login");
+    }
+  }, []);
+
   return (
-    <GeneralLayout>
-      <h1 className={style.text}>Create User Portfolio</h1>
+    <GeneralLayout isLoading={loading}>
+      <h1 className={style.text}>{AppStrings.language.createPage.title}</h1>
       <div className={style.input}>
         <TextField
           variant="standard"
-          label="Enter your User Name"
+          label={AppStrings.language.createPage.placeholder}
           value={userName}
           onChange={handleSetUserName}
-          onBlur={() => {
-            setLoading(true);
-            handleCheckUnqiue().then(() => setLoading(false));
-          }}
+          onBlur={handleCheckUnqiue}
           InputProps={{
-            endAdornment: loading ? (
+            endAdornment: checking ? (
               <CircularProgress color="inherit" size={20} />
             ) : null,
           }}
         />
         <div className={style.error}>{error}</div>
         <i className={style.notice}>
-          The User Name must be unique and contain without space letter.
+          {AppStrings.language.createPage.description}
         </i>
         <Spacer h={20} />
-        <AppButton
-          onClick={handleCreateUser}
-          disabled={loading || error !== ""}
-        >
+        <AppButton onClick={handleCreateUser} disabled={isButtonDisabled()}>
           <IoAddOutline />
-          Create User
+          {AppStrings.language.createPage.submit}
         </AppButton>
       </div>
     </GeneralLayout>

@@ -7,19 +7,19 @@ const api = axios.create({
   withCredentials: true,
 });
 
-interface ApiResponse<T> {
+type ApiResponse<T> = {
   message: string;
   data: T;
-}
+};
 
 const apiHelper = {
-  get: async <T>(url: string, params: object = {}): Promise<T> => {
+  get: async <T>(url: string, params: object = {}): Promise<ApiResponse<T>> => {
     try {
       const response = await api.get<ApiResponse<T>>(url, { params });
-      return response.data.data;
+      return response.data;
     } catch (error: any) {
       console.error(error.response ? error.response.message : error.message);
-      return null as T;
+      return {} as ApiResponse<T>;
     }
   },
 
@@ -27,16 +27,16 @@ const apiHelper = {
     url: string,
     data: object = {},
     config: AxiosRequestConfig = {}
-  ): Promise<T> => {
+  ): Promise<ApiResponse<T>> => {
     try {
       const response = await api.post<ApiResponse<T>>(url, data, {
         ...config,
         headers: { "Content-Type": "application/json", ...config.headers },
       });
-      return response.data.data;
+      return response.data;
     } catch (error: any) {
       console.error(error.response ? error.response.message : error.message);
-      return null as T;
+      return {} as ApiResponse<T>;
     }
   },
 
@@ -44,16 +44,16 @@ const apiHelper = {
     url: string,
     formData: FormData,
     config: AxiosRequestConfig = {}
-  ): Promise<T> => {
+  ): Promise<ApiResponse<T>> => {
     try {
       const response = await api.post<ApiResponse<T>>(url, formData, {
         ...config,
         headers: { "Content-Type": "multipart/form-data", ...config.headers },
       });
-      return response.data.data;
+      return response.data;
     } catch (error: any) {
       console.error(error.response ? error.response.message : error.message);
-      return null as T;
+      return {} as ApiResponse<T>;
     }
   },
 
@@ -61,29 +61,29 @@ const apiHelper = {
     url: string,
     data: object = {},
     config: AxiosRequestConfig = {}
-  ): Promise<T> => {
+  ): Promise<ApiResponse<T>> => {
     try {
       const response = await api.put<ApiResponse<T>>(url, data, {
         ...config,
         headers: { "Content-Type": "application/json", ...config.headers },
       });
-      return response.data.data;
+      return response.data;
     } catch (error: any) {
       console.error(error.response ? error.response.message : error.message);
-      return null as T;
+      return {} as ApiResponse<T>;
     }
   },
 
   delete: async <T>(
     url: string,
     config: AxiosRequestConfig = {}
-  ): Promise<T> => {
+  ): Promise<ApiResponse<T>> => {
     try {
       const response = await api.delete<ApiResponse<T>>(url, { ...config });
-      return response.data.data;
+      return response.data;
     } catch (error: any) {
       console.error(error.response ? error.response.message : error.message);
-      return null as T;
+      return {} as ApiResponse<T>;
     }
   },
 };

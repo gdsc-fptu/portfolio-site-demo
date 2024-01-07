@@ -2,28 +2,11 @@
 import style from "./style.module.scss";
 // @ts-ignore
 import logo from "../../assets/brands/logo.png";
-// @ts-ignore
-import clsx from "clsx";
+
+// Import React modules
 import { useState, useCallback, useEffect, Fragment } from "react";
+import clsx from "clsx";
 import { useLocation, useNavigate } from "react-router-dom";
-import RotationMarker from "../../components/Shared/RotationMarker";
-import Background, {
-  BackgroundStyle,
-} from "../../components/Shared/Background";
-import Badge from "../../components/Shared/Badges";
-import FrostBadge from "../../components/PortfolioPage/FrostBadge";
-import SubSection from "../../components/PortfolioPage/SubSection";
-import Loader from "../../components/Shared/Loader";
-import { getColorByRole, getFullNameByRole } from "../../utils/enum/roles";
-import { getStringByGender, getIconByGender } from "../../utils/enum/gender";
-import { getStringByZodiac, getIconByZodiac } from "../../utils/enum/zodiac";
-import { Project, Skill } from "../../utils/interface";
-import {
-  incEltNbr,
-  copyToClipboard,
-  mobileAndTabletCheck,
-} from "../../utils/utils";
-import { AppStrings } from "../../utils/strings";
 import { BiCake, BiLogoTiktok } from "react-icons/bi";
 import {
   AiFillPhone,
@@ -33,12 +16,37 @@ import {
 } from "react-icons/ai";
 import { FaFacebook, FaGithub } from "react-icons/fa";
 import { BsArrowRight } from "react-icons/bs";
-import { getPost } from "../../apis/read";
+
+// Import custom components
+import RotationMarker from "../../components/Shared/RotationMarker";
+import Background, {
+  BackgroundStyle,
+} from "../../components/Shared/Background";
+import Badge from "../../components/Shared/Badges";
+import FrostBadge from "../../components/PortfolioPage/FrostBadge";
+import SubSection from "../../components/PortfolioPage/SubSection";
+import Loader from "../../components/Shared/Loader";
 import MovingBubble from "../../components/Shared/MovingBubble";
+import UserCircle from "../../components/Shared/User";
+import { getColorByRole, getFullNameByRole } from "../../utils/enum/roles";
+import { getStringByGender, getIconByGender } from "../../utils/enum/gender";
+import { getStringByZodiac, getIconByZodiac } from "../../utils/enum/zodiac";
+import { Project, Skill } from "../../utils/interface";
+
+// Import utils
+import {
+  incEltNbr,
+  copyToClipboard,
+  mobileAndTabletCheck,
+} from "../../utils/utils";
+import { AppStrings } from "../../utils/strings";
+import { getPost } from "../../apis/read";
+import useAppStore from "../../context/store";
 
 export default function PortfolioPage() {
   const [data, setData] = useState({} as any);
   const location = useLocation();
+  const user = useAppStore((state) => state.user);
   const navigator = useNavigate();
 
   const handleScrollActions = useCallback(() => {
@@ -105,7 +113,6 @@ export default function PortfolioPage() {
     email?: String,
     facebook?: String,
     instagram?: String,
-    tiktok?: String,
     linkedin?: String,
     github?: String
   ) {
@@ -152,17 +159,6 @@ export default function PortfolioPage() {
         </a>
       );
     }
-    if (tiktok) {
-      contactUIs.push(
-        <a
-          className={style.contactItem}
-          href={tiktok as string}
-          target="_blank"
-        >
-          <BiLogoTiktok />
-        </a>
-      );
-    }
     if (linkedin) {
       contactUIs.push(
         <a
@@ -189,7 +185,12 @@ export default function PortfolioPage() {
   }
 
   return Object.keys(data).length !== 0 ? (
-    <>
+    <Fragment>
+      {user && (
+        <div className={style.userContainer}>
+          <UserCircle user={user} />
+        </div>
+      )}
       <div className={style.container}>
         <div className={style.header}>
           <div className={style.headerLogo} onClick={handleNavigateToHome}>
@@ -221,7 +222,7 @@ export default function PortfolioPage() {
               </Fragment>
             ))}
           </div>
-          <div className={style.headerMarker}>
+          <div className={style.headerMarker} onClick={handleNavigateToHome}>
             <RotationMarker color={getColorByRole(data.roles[0])} />
           </div>
           <div className={style.headerImag} id={"GrandImg"}>
@@ -264,7 +265,6 @@ export default function PortfolioPage() {
                 data.email,
                 data.facebook,
                 data.instagram,
-                data.tiktok,
                 data.linkedin,
                 data.github
               )}
@@ -408,7 +408,7 @@ export default function PortfolioPage() {
       <div className="signature">
         Creator <code>@Ming-doan</code> ©2023
       </div>
-    </>
+    </Fragment>
   ) : (
     <Loader />
   );

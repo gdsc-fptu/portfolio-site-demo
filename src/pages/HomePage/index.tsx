@@ -2,114 +2,143 @@
 import style from "./style.module.scss";
 // @ts-ignore
 import logo from "../../assets/brands/logo.png";
-import { useState, useEffect, Fragment, useRef } from "react";
+
+// Import React modules
+import { useState, useEffect, Fragment } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import clsx from "clsx";
+import { FaChevronRight, FaChevronLeft } from "react-icons/fa6";
+
+// Import custom components
 import Loader from "../../components/Shared/Loader";
 import Background from "../../components/Shared/Background";
-import { GoogleColor } from "../../utils/enum/color";
-import { FaChevronRight, FaChevronLeft } from "react-icons/fa6";
-import sortMember from "../../utils/sortMember";
-import { getColorByRole, getFullNameByRole } from "../../utils/enum/roles";
 import MovingBubble from "../../components/Shared/MovingBubble";
 import Badge from "../../components/Shared/Badges";
-import { getPosts } from "../../apis/read";
+import UserCircle from "../../components/Shared/User";
+import { GoogleColor } from "../../utils/enum/color";
+import { getColorByRole, getFullNameByRole } from "../../utils/enum/roles";
 import { User } from "../../utils/interface";
+import { AppStrings } from "../../utils/strings";
+import sortMember from "../../utils/sortMember";
+
+// Import apis & hooks
+import { getPosts } from "../../apis/read";
+import useGesture from "../../hooks/useGesture";
+import useKeyboard from "../../hooks/useKeyboard";
+import useAppStore from "../../context/store";
+
+/**
+ * Local interfaces
+ */
+type StateProps = {
+  index: number;
+  id: string;
+  color: GoogleColor;
+};
 
 export default function HomePage() {
+  /**
+   * State, Props
+   */
+  // Set data for all portfolio
   const [data, setData] = useState([] as User[]);
+  // Set state for portfolio attributes
   const [state, setState] = useState({
     index: 0,
     id: "",
     color: GoogleColor.black,
-  } as any);
+  } as StateProps);
+  const user = useAppStore((state) => state.user);
+  // Set navigator
   const navigator = useNavigate();
+  // Set location
   const location = useLocation();
-  const geturePosition = useRef({ xDown: 0, yDown: 0, xUp: 0, yUp: 0 });
 
+  /**
+   * Get Image Urls from data
+   */
   function getImageUrls() {
     return data.map((user) => user.imageUrl);
   }
 
-  function handleChangeIndex(index: number) {
-    if (index < 0 || index >= data.length) return;
-    setState((_: any) => ({
-      index: index,
-      id: data[index].userName,
-      color: data[index].roles[0]
-        ? getColorByRole(data[index].roles[0])
-        : GoogleColor.black,
-    }));
+  /**
+   * Set state for portfolio attributes
+   */
+  function handleSetState(index: number, id: String, color: String) {
+    if (typeof color === "string") {
+      color = getColorByRole(color);
+    }
+    setState(
+      (_) =>
+        ({
+          index: index,
+          id: id,
+          color: color ? color : GoogleColor.black,
+        } as StateProps)
+    );
   }
 
+  /**
+   * Handle change index
+   */
+  function handleChangeIndex(index: number) {
+    if (index < 0 || index >= data.length) return;
+    handleSetState(index, data[index].userName, data[index].roles[0]);
+  }
+
+  /**
+   * Handle view portfolio
+   */
   function handleViewPortfolio() {
     navigator(`/${state.id}`);
   }
 
-  function handleKeyDown(event: any) {
-    if (event.key === "ArrowLeft") {
-      handleChangeIndex(state.index - 1);
-    } else if (event.key === "ArrowRight") {
-      handleChangeIndex(state.index + 1);
-    } else if (event.key === "Enter") {
-      handleViewPortfolio();
-    }
-  }
-
-  function handleGesture() {
-    const { xDown, yDown, xUp, yUp } = geturePosition.current;
-    if (!xDown || !yDown || !xUp || !yUp) return;
-    const xDiff = xDown - xUp;
-    const yDiff = yDown - yUp;
-    if (Math.abs(xDiff) > Math.abs(yDiff)) {
-      if (xDiff > 0) {
-        handleChangeIndex(state.index + 1);
-      } else {
-        handleChangeIndex(state.index - 1);
-      }
-    }
-    geturePosition.current = { xDown: 0, yDown: 0, xUp: 0, yUp: 0 };
-  }
-
-  function handleGestureDown(event: any) {
-    geturePosition.current.xDown = event.touches[0].clientX;
-    geturePosition.current.yDown = event.touches[0].clientY;
-  }
-
-  function handleGestureUp(event: any) {
-    geturePosition.current.xUp = event.changedTouches[0].clientX;
-    geturePosition.current.yUp = event.changedTouches[0].clientY;
-    handleGesture();
-  }
+  /**
+   * Gesture and Keyboard event listener
+   */
+  const gestureBinding = useGesture({
+    onSwipeLeft: () => handleChangeIndex(state.index + 1),
+    onSwipeRight: () => handleChangeIndex(state.index - 1),
+  });
+  const keyboardBinding = useKeyboard({
+    onLeftArrow: () => handleChangeIndex(state.index - 1),
+    onRightArrow: () => handleChangeIndex(state.index + 1),
+    onEnter: () => handleViewPortfolio(),
+  });
 
   useEffect(() => {
+    /**
+     * Fetch all portfolio data from database
+     */
     const role = new URLSearchParams(location.search).get("role");
-    getPosts(role as string).then((res) => {
-      res = sortMember(res);
-      setState((_: any) => ({
-        index: 0,
-        id: res[0].userName,
-        color: res[0].roles[0]
-          ? getColorByRole(res[0].roles[0])
-          : GoogleColor.black,
-      }));
-      setData(res);
+    getPosts(role).then((users) => {
+      users = sortMember(users);
+      handleSetState(0, users[0].userName, users[0].roles[0]);
+      setData(users);
     });
   }, []);
 
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("touchstart", handleGestureDown);
-    window.addEventListener("touchend", handleGestureUp);
+    /**
+     * Keyboard event listener
+     */
+    window.addEventListener("keydown", keyboardBinding.onKeyPress);
+
+    /**
+     * Cleanup
+     */
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("touchstart", handleGestureDown);
-      window.removeEventListener("touchend", handleGestureUp);
+      window.removeEventListener("keydown", keyboardBinding.onKeyPress);
     };
-  }, [handleKeyDown]);
+  }, [keyboardBinding.onKeyPress]);
 
   return data.length !== 0 ? (
-    <div className={style.container}>
+    <div className={style.container} {...gestureBinding}>
+      {user && (
+        <div className={style.userContainer}>
+          <UserCircle user={user} />
+        </div>
+      )}
       <div
         className={style.bottom}
         style={{
@@ -217,7 +246,7 @@ export default function HomePage() {
             className={clsx(style.btn, style[state.color])}
             onClick={() => handleViewPortfolio()}
           >
-            View Portfolio
+            {AppStrings.language.homePage.viewPortfolio}
           </button>
         </div>
       </div>
