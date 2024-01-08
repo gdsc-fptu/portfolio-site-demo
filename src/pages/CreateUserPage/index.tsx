@@ -5,7 +5,6 @@ import style from "./style.module.scss";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TextField from "@mui/material/TextField";
-import CircularProgress from "@mui/material/CircularProgress";
 import { IoAddOutline } from "react-icons/io5";
 
 // Import custom components
@@ -17,37 +16,36 @@ import { AppStrings } from "../../utils/strings";
 // Import APIs
 import { createPortfolio } from "../../apis/user";
 import { checkUserNameAvailability } from "../../logic/checkUserNameAvailability";
-import useAppStore from "../../context/store";
+import { getFromLocalStorage } from "../../utils/utils";
 
 export default function CreateUserPage() {
   const [loading, setLoading] = useState<Boolean>(false);
-  const [checking, setChecking] = useState<Boolean>(false);
   const [userName, setUserName] = useState<String>("");
   const [error, setError] = useState<String | null>(null);
-  const user = useAppStore((state) => state.user);
   const navigator = useNavigate();
 
   function handleSetUserName(e: React.ChangeEvent<HTMLInputElement>) {
     setUserName(e.target.value);
+    setError(null);
   }
 
-  function handleCheckUnqiue() {
-    setChecking(true);
-    checkUserNameAvailability(userName, (error) => setError(error)).then(() =>
-      setChecking(false)
-    );
+  async function handleCheckUnqiue() {
+    return checkUserNameAvailability(userName, (error) => setError(error));
   }
 
   function isButtonDisabled() {
     if (loading) return true;
-    if (checking) return true;
     if (userName === "") return true;
-    if (error) return true;
     return false;
   }
 
-  function handleCreateUser() {
+  async function handleCreateUser() {
     setLoading(true);
+    const isAvailable = await handleCheckUnqiue();
+    if (!isAvailable) {
+      setLoading(false);
+      return;
+    }
     if (!error && userName !== "") {
       createPortfolio(userName).then(() => {
         navigator("/edit");
@@ -57,7 +55,7 @@ export default function CreateUserPage() {
   }
 
   useEffect(() => {
-    if (!user) {
+    if (!getFromLocalStorage("login")) {
       navigator("/login");
     }
   }, []);
@@ -71,12 +69,6 @@ export default function CreateUserPage() {
           label={AppStrings.language.createPage.placeholder}
           value={userName}
           onChange={handleSetUserName}
-          onBlur={handleCheckUnqiue}
-          InputProps={{
-            endAdornment: checking ? (
-              <CircularProgress color="inherit" size={20} />
-            ) : null,
-          }}
         />
         <div className={style.error}>{error}</div>
         <i className={style.notice}>

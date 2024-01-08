@@ -10,7 +10,7 @@ const AppLanguageVi = {
     title: "Tạo Portfolio",
     placeholder: "Nhập tên người dùng của bạn",
     description:
-      "Tên của bạn sẽ được sử dụng để tạo link portfolio của bạn. *Tên không thể thay đổi sau này.",
+      "Tên của bạn sẽ được sử dụng để tạo link portfolio của bạn. *Tên người dùng phải là duy nhất.",
     submit: "Tạo Portfolio",
   },
   notFoundPage: {
@@ -110,7 +110,7 @@ const AppLanguageEn = {
     title: "Create Portfolio",
     placeholder: "Enter your username",
     description:
-      "Your username will be used to create your portfolio link. *The username cannot be changed later.",
+      "Your username will be used to create your portfolio link. *The username must be unique.",
     submit: "Create Portfolio",
   },
   notFoundPage: {

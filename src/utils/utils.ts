@@ -76,7 +76,15 @@ export function resizeImage(file: File, quality: number = 0.7): Promise<File> {
 }
 
 export async function downloadImage(url: string): Promise<File> {
-  const image = await fetch(url);
+  const image = await fetch(url, {
+    method: "GET",
+    mode: "cors",
+    credentials: "include",
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Content-Type": "image/png",
+    },
+  });
   const imageBlog = await image.blob();
   const fileName = url.split("/").pop() || `${uuidv4()}.png`;
   const file = new File([imageBlog], fileName, { type: "image/png" });
@@ -110,4 +118,47 @@ export function getMUIGlobalTheme(color?: GoogleColor) {
       },
     },
   };
+}
+
+export function getFromLocalStorage(key: string) {
+  const value = localStorage.getItem(key);
+  if (value) {
+    return JSON.parse(value);
+  }
+  return null;
+}
+
+export function setToLocalStorage(key: string, value: any) {
+  const valueStr = JSON.stringify(value);
+  localStorage.setItem(key, valueStr);
+}
+
+export function removeFromLocalStorage(key: string) {
+  localStorage.removeItem(key);
+}
+
+export function convertStringToNumber(value: String) {
+  if (value === "") {
+    return 0;
+  }
+  const result = parseInt(value as string);
+  if (isNaN(result)) {
+    return 0;
+  }
+  return result;
+}
+
+export function formatPercentInput(
+  value: String | Number,
+  max?: Number,
+  min?: Number
+) {
+  if (typeof value === "string") {
+    value = convertStringToNumber(value);
+  }
+  if (!max) max = 100;
+  if (!min) min = 0;
+  if (value > max) return max;
+  if (value < min) return min;
+  return value;
 }

@@ -13,3 +13,9 @@ export async function fetchPortfolioData(userName: String) {
   }
   return { data, imageUrl };
 }
+
+export async function fetchPortfolioImage(imageUrl: String | null) {
+  if (!imageUrl) return null;
+  const image = (await getImage(imageUrl)) as String;
+  return image;
+}

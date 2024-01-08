@@ -1,6 +1,7 @@
 import apiHelper from "../utils/apiHelper";
 import { Apis } from "../utils/constant";
 import { AccountUser } from "../utils/interface";
+import { removeFromLocalStorage } from "../utils/utils";
 
 export const verifyGoogleAccount = async (accessToken: String) => {
   const response = await apiHelper.post(Apis.verify, {
@@ -23,6 +24,8 @@ export const checkUserAvailability = async (userName: String) => {
 };
 
 export const createPortfolio = async (userName: String) => {
+  // Remove current portfolio in local storage
+  removeFromLocalStorage("form");
   // Update the user name in the database
   const firstResponse = await apiHelper.post(Apis.updateUserName, { userName });
   console.info(firstResponse.message);

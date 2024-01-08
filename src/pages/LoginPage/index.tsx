@@ -15,6 +15,7 @@ import { AppStrings } from "../../utils/strings";
 import useAppStore from "../../context/store";
 import { GoogleLoginButton, GoogleResponse } from "../../utils/googleAuth";
 import { verifyGoogleAccount } from "../../apis/user";
+import { setToLocalStorage } from "../../utils/utils";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState<Boolean>(false);
@@ -26,6 +27,7 @@ export default function LoginPage() {
     await verifyGoogleAccount(response.access_token).then((userData) => {
       setLoading(false);
       setUser(userData);
+      setToLocalStorage("login", true);
       navigator("/edit");
     });
   }

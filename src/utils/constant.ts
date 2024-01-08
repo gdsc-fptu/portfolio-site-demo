@@ -17,7 +17,7 @@ export const Apis = {
   currentUser: `${BASE_URL_3}/api/auth/me`,
   verify: `${BASE_URL_3}/api/auth/verify`,
   logout: `${BASE_URL_3}/api/auth/logout`,
-  checkUser: `${BASE_URL}/api/check/`,
+  checkUser: `${BASE_URL_3}/api/users/check/`,
   updateUserName: `${BASE_URL_3}/api/users/update`,
 };
 

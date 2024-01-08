@@ -9,7 +9,11 @@ import Button from "@mui/material/Button";
 import { MdModeEdit } from "react-icons/md";
 import { IoLogOut } from "react-icons/io5";
 import { AppStrings } from "../../../utils/strings";
-import { getMUIGlobalTheme, mobileAndTabletCheck } from "../../../utils/utils";
+import {
+  getMUIGlobalTheme,
+  mobileAndTabletCheck,
+  removeFromLocalStorage,
+} from "../../../utils/utils";
 import { AccountUser } from "../../../utils/interface";
 import useAppStore from "../../../context/store";
 import { logout } from "../../../apis/user";
@@ -35,6 +39,7 @@ export default function UserCircle({ user }: UserCircleProps) {
 
   function handleLogout() {
     setUser(null);
+    removeFromLocalStorage("login");
     logout();
   }
 

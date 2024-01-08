@@ -48,6 +48,11 @@ import { updatePost } from "../../apis/update";
 import { fetchPortfolioData } from "../../logic/getPortfolio";
 import { processUploadImage } from "../../logic/uploadImage";
 import { processGetUser } from "../../logic/getAccountUser";
+import {
+  formatPercentInput,
+  getFromLocalStorage,
+  setToLocalStorage,
+} from "../../utils/utils";
 
 export default function EditPage() {
   /**
@@ -80,34 +85,45 @@ export default function EditPage() {
   async function handleLoginToAnotherAccount(response: GoogleResponse) {
     const userData = await verifyGoogleAccount(response.access_token);
     const { data, imageUrl } = await fetchPortfolioData(userData.userName);
+    setToLocalStorage("form", data);
     handleSetPageDataAfterLogin(userData, data, imageUrl);
+    // Refresh page
+    window.location.reload();
   }
 
   /**
    * Form State Handlers
    */
   function handleSetForm(key: string, value: any) {
-    setForm((prev) => ({ ...prev, [key]: value }));
+    const newForm = { ...form, [key]: value };
+    setForm((_) => newForm);
+    setToLocalStorage("form", newForm);
   }
   function handleSetFormArray(key: string, index: number, value: any) {
-    setForm((prev: any) => ({
-      ...prev,
-      [key]: prev[key].map((item: any, idx: number) =>
+    const newForm = {
+      ...form,
+      [key]: (form as any)[key].map((item: any, idx: number) =>
         idx === index ? value : item
       ),
-    }));
+    };
+    setForm((_) => newForm);
+    setToLocalStorage("form", newForm);
   }
   function handleSetFormArrayPush(key: string, value: any) {
-    setForm((prev: any) => ({
-      ...prev,
-      [key]: [...prev[key], value],
-    }));
+    const newForm = {
+      ...form,
+      [key]: [...(form as any)[key], value],
+    };
+    setForm((_) => newForm);
+    setToLocalStorage("form", newForm);
   }
   function handleSetFormArrayRemove(key: string, index: number) {
-    setForm((prev: any) => ({
-      ...prev,
-      [key]: prev[key].filter((_: any, idx: number) => idx !== index),
-    }));
+    const newForm = {
+      ...form,
+      [key]: (form as any)[key].filter((_: any, idx: number) => idx !== index),
+    };
+    setForm((_) => newForm);
+    setToLocalStorage("form", newForm);
   }
 
   /**
@@ -116,6 +132,7 @@ export default function EditPage() {
   async function handleUploadImage(file: File) {
     setSaving(true);
     const { imagePath, imageUrl } = await processUploadImage(file, isRembg);
+    console.log("Image", imagePath, imageUrl);
     handleSetForm("imageUrl", imagePath);
     updatePost(form.id, {
       ...form,
@@ -148,6 +165,8 @@ export default function EditPage() {
   }
 
   useEffect(() => {
+    // Get from local storage
+    const localForm = getFromLocalStorage("form");
     const onNotLoggedIn = () => {
       navigator("/login");
     };
@@ -158,11 +177,20 @@ export default function EditPage() {
       navigator("/404");
     };
     const onGetUser = (data: User | null, imageUrl: String | null) => {
+      setToLocalStorage("form", data);
       handleSetPageDataAfterLogin(user as AccountUser, data, imageUrl);
     };
-    processGetUser(user, onNotLoggedIn, onNewUser, onGetUser, onNotFound).then(
-      (responseUser) => setUser(responseUser as AccountUser)
-    );
+    processGetUser(
+      user,
+      localForm,
+      onNotLoggedIn,
+      onNewUser,
+      onGetUser,
+      onNotFound
+    ).then((responseUser) => {
+      setUser(responseUser as AccountUser);
+      // handleSetForm("email", responseUser?.email);
+    });
   }, []);
 
   return Object.keys(form).length !== 0 ? (
@@ -460,13 +488,13 @@ export default function EditPage() {
                       type="number"
                       variant="standard"
                       label={AppStrings.language.editPage.skill.percent}
-                      defaultValue={skill.percent}
+                      defaultValue={`${skill.percent}`}
                       onChange={(e) =>
                         handleSetFormArray(
                           "skills",
                           index,
                           Object.assign({}, skill, {
-                            percent: e.target.value,
+                            percent: formatPercentInput(e.target.value),
                           })
                         )
                       }

@@ -42,11 +42,14 @@ import {
 import { AppStrings } from "../../utils/strings";
 import { getPost } from "../../apis/read";
 import useAppStore from "../../context/store";
+import setDocumentTitle from "../../logic/setTitle";
+import { fetchAccountUser } from "../../logic/fetchAccountUser";
 
 export default function PortfolioPage() {
   const [data, setData] = useState({} as any);
   const location = useLocation();
   const user = useAppStore((state) => state.user);
+  const setUser = useAppStore((state) => state.setUser);
   const navigator = useNavigate();
 
   const handleScrollActions = useCallback(() => {
@@ -73,6 +76,7 @@ export default function PortfolioPage() {
     if (
       scrollPosition > screenHeight * 1.2 &&
       scrollPosition < screenHeight * 1.2 + 100 &&
+      data.skills &&
       data.skills?.length !== 0 &&
       !mobileAndTabletCheck()
     ) {
@@ -91,16 +95,39 @@ export default function PortfolioPage() {
     navigator(`/?role=${role}`);
   }
 
+  function isProjectImageEmpty(project: Project) {
+    return project.images?.length === 0;
+  }
+
+  function getFirstProjectImage(project: Project) {
+    if (project.images) {
+      return project.images[0] as string;
+    }
+    return "";
+  }
+
   useEffect(() => {
     // Get the portfolio id
     let id = location.pathname.split("/")[1];
-    getPost(id).then((res) => {
-      if (!res) {
+    getPost(id).then(async (response) => {
+      /**
+       * Fetch account user data from database
+       */
+      if (!user) {
+        await fetchAccountUser(setUser);
+      }
+      /**
+       * If the portfolio is not found, redirect to 404 page
+       */
+      if (!response) {
         navigator("/404");
         return;
       }
-      setData(res);
-      document.title = `${res.firstName} ${res.lastName} - ${AppStrings.footerBrand}`;
+      /**
+       * Set the portfolio data
+       */
+      setData(response);
+      setDocumentTitle(response.firstName, response.lastName, id);
       document.addEventListener("scroll", handleScrollActions);
     });
     return () => {
@@ -311,15 +338,15 @@ export default function PortfolioPage() {
             <div className={style.projectsGrid}>
               {data.projects?.map((project: Project, index: number) => (
                 <div key={index} className={style.project}>
-                  {project.images && (
+                  {!isProjectImageEmpty(project) && (
                     <div className={style.projectImage}>
-                      <img src={project.images[0] as string} alt="" />
+                      <img src={getFirstProjectImage(project)} alt="" />
                     </div>
                   )}
                   <div
                     className={clsx(
                       style.projectContent,
-                      project.images ? style.animation : null
+                      !isProjectImageEmpty(project) ? style.animation : null
                     )}
                   >
                     <div className={style.projectName}>{project.name}</div>

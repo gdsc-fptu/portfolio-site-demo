@@ -26,6 +26,7 @@ import { getPosts } from "../../apis/read";
 import useGesture from "../../hooks/useGesture";
 import useKeyboard from "../../hooks/useKeyboard";
 import useAppStore from "../../context/store";
+import { fetchAccountUser } from "../../logic/fetchAccountUser";
 
 /**
  * Local interfaces
@@ -49,6 +50,7 @@ export default function HomePage() {
     color: GoogleColor.black,
   } as StateProps);
   const user = useAppStore((state) => state.user);
+  const setUser = useAppStore((state) => state.setUser);
   // Set navigator
   const navigator = useNavigate();
   // Set location
@@ -111,7 +113,16 @@ export default function HomePage() {
      * Fetch all portfolio data from database
      */
     const role = new URLSearchParams(location.search).get("role");
-    getPosts(role).then((users) => {
+    getPosts(role).then(async (users) => {
+      /**
+       * Fetch account user data from database
+       */
+      if (!user) {
+        await fetchAccountUser(setUser);
+      }
+      /**
+       * Sort & Set data members by roles
+       */
       users = sortMember(users);
       handleSetState(0, users[0].userName, users[0].roles[0]);
       setData(users);

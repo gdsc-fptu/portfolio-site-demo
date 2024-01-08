@@ -1,9 +1,10 @@
 import { getCurrentUser } from "../apis/user";
 import { AccountUser, User } from "../utils/interface";
-import { fetchPortfolioData } from "./getPortfolio";
+import { fetchPortfolioData, fetchPortfolioImage } from "./getPortfolio";
 
 export async function processGetUser(
   user: AccountUser | null,
+  portfolioData?: User | null,
   onNotLoggedIn?: () => void,
   onNewUser?: () => void,
   onSucess?: (data: User | null, imageUrl: String | null) => void,
@@ -27,7 +28,18 @@ export async function processGetUser(
   }
 
   // Fetch portfolio data
-  const { data, imageUrl } = await fetchPortfolioData(responseUser.userName);
+  let data = null;
+  let imageUrl = null;
+  if (portfolioData) {
+    data = portfolioData;
+    if (portfolioData?.imageUrl) {
+      imageUrl = await fetchPortfolioImage(portfolioData.imageUrl);
+    }
+  } else {
+    const response = await fetchPortfolioData(responseUser.userName);
+    data = response.data;
+    imageUrl = response.imageUrl;
+  }
 
   if (!data) {
     // If portfolio data not found, redirect to 404 page
