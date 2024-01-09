@@ -12,16 +12,19 @@ import GeneralLayout from "../../components/Shared/GeneralLayout";
 import AppButton from "../../components/Shared/Button";
 import Spacer from "../../components/Shared/Spacer";
 import { AppStrings } from "../../utils/strings";
+import { AccountUser } from "../../utils/interface";
 
 // Import APIs
-import { createPortfolio } from "../../apis/user";
+import { createPortfolio, getCurrentUser } from "../../apis/user";
 import { checkUserNameAvailability } from "../../logic/checkUserNameAvailability";
 import { getFromLocalStorage } from "../../utils/utils";
+import useAppStore from "../../context/store";
 
 export default function CreateUserPage() {
   const [loading, setLoading] = useState<Boolean>(false);
   const [userName, setUserName] = useState<String>("");
   const [error, setError] = useState<String | null>(null);
+  const setUser = useAppStore((state) => state.setUser);
   const navigator = useNavigate();
 
   function handleSetUserName(e: React.ChangeEvent<HTMLInputElement>) {
@@ -48,8 +51,15 @@ export default function CreateUserPage() {
     }
     if (!error && userName !== "") {
       createPortfolio(userName).then(() => {
-        navigator("/edit");
-        setLoading(false);
+        getCurrentUser().then((user: AccountUser) => {
+          console.log(user);
+          setUser({
+            ...user,
+            userName,
+          } as AccountUser);
+          navigator("/edit");
+          setLoading(false);
+        });
       });
     }
   }

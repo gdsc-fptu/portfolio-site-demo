@@ -95,35 +95,27 @@ export default function EditPage() {
    * Form State Handlers
    */
   function handleSetForm(key: string, value: any) {
-    const newForm = { ...form, [key]: value };
-    setForm((_) => newForm);
-    setToLocalStorage("form", newForm);
+    setForm((prev) => ({ ...prev, [key]: value }));
   }
   function handleSetFormArray(key: string, index: number, value: any) {
-    const newForm = {
-      ...form,
+    setForm((prev) => ({
+      ...prev,
       [key]: (form as any)[key].map((item: any, idx: number) =>
         idx === index ? value : item
       ),
-    };
-    setForm((_) => newForm);
-    setToLocalStorage("form", newForm);
+    }));
   }
   function handleSetFormArrayPush(key: string, value: any) {
-    const newForm = {
-      ...form,
+    setForm((prev) => ({
+      ...prev,
       [key]: [...(form as any)[key], value],
-    };
-    setForm((_) => newForm);
-    setToLocalStorage("form", newForm);
+    }));
   }
   function handleSetFormArrayRemove(key: string, index: number) {
-    const newForm = {
-      ...form,
+    setForm((prev) => ({
+      ...prev,
       [key]: (form as any)[key].filter((_: any, idx: number) => idx !== index),
-    };
-    setForm((_) => newForm);
-    setToLocalStorage("form", newForm);
+    }));
   }
 
   /**
@@ -177,7 +169,6 @@ export default function EditPage() {
       navigator("/404");
     };
     const onGetUser = (data: User | null, imageUrl: String | null) => {
-      setToLocalStorage("form", data);
       handleSetPageDataAfterLogin(user as AccountUser, data, imageUrl);
     };
     processGetUser(
@@ -192,6 +183,12 @@ export default function EditPage() {
       // handleSetForm("email", responseUser?.email);
     });
   }, []);
+
+  useEffect(() => {
+    if (Object.keys(form).length !== 0) {
+      setToLocalStorage("form", form);
+    }
+  }, [form]);
 
   return Object.keys(form).length !== 0 ? (
     <GeneralLayout

@@ -2,6 +2,8 @@ import Resizer from "react-image-file-resizer";
 // @ts-ignore
 import { v4 as uuidv4 } from "uuid";
 import { GoogleColor, getHexByColor } from "./enum/color";
+// @ts-ignore
+import Cookies from "js-cookie";
 
 export function incEltNbr(elt: HTMLElement, value: number, speed: number = 10) {
   function incNbrRec(i: number, endNbr: number, elt: HTMLElement) {
@@ -161,4 +163,20 @@ export function formatPercentInput(
   if (value > max) return max;
   if (value < min) return min;
   return value;
+}
+
+export function checkCookieIsEnabled() {
+  return navigator.cookieEnabled;
+}
+
+export function setTokenCookie(value: String) {
+  Cookies.set("token", value, { expires: 1, SameSite: "None", Secure: true });
+}
+
+export function getTokenCookie() {
+  return Cookies.get("token");
+}
+
+export function removeTokenCookie() {
+  Cookies.remove("token");
 }

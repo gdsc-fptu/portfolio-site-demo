@@ -13,6 +13,13 @@ type ApiResponse<T> = {
 };
 
 const apiHelper = {
+  addToken: (token: String) => {
+    api.interceptors.request.use((config) => {
+      config.headers.Authorization = `Bearer ${token}`;
+      return config;
+    });
+  },
+
   get: async <T>(url: string, params: object = {}): Promise<ApiResponse<T>> => {
     try {
       const response = await api.get<ApiResponse<T>>(url, { params });

@@ -112,6 +112,7 @@ export default function HomePage() {
     /**
      * Fetch all portfolio data from database
      */
+    document.title = AppStrings.footerBrand;
     const role = new URLSearchParams(location.search).get("role");
     getPosts(role).then(async (users) => {
       /**

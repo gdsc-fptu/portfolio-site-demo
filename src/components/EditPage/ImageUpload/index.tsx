@@ -8,6 +8,8 @@ import { MdDelete } from "react-icons/md";
 import { resizeImage } from "../../../utils/utils";
 import { ACCEPTED_TYPES, FILE_SIZE_LIMIT } from "../../../utils/constant";
 import { AppStrings } from "../../../utils/strings";
+// @ts-ignore
+import { v4 as uuidv4 } from "uuid";
 
 type ImageUploadButtonProps = {
   image?: String | string;
@@ -62,6 +64,11 @@ export default function ImageUploadButton({
       setLoading(true);
       setFile(file);
       setImage(file ? URL.createObjectURL(file) : null);
+      // Rename file
+      const fileExtension = file.name.split(".").pop();
+      file = new File([file], `${uuidv4()}.${fileExtension}`, {
+        type: file.type,
+      });
       handleUpload(file);
     }
   }

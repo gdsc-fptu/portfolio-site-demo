@@ -147,6 +147,7 @@ export default function PortfolioPage() {
     if (phone) {
       contactUIs.push(
         <div
+          key={0}
           className={style.contactItem}
           onClick={() => copyToClipboard(phone as string)}
         >
@@ -157,6 +158,7 @@ export default function PortfolioPage() {
     if (email) {
       contactUIs.push(
         <div
+          key={1}
           className={style.contactItem}
           onClick={() => copyToClipboard(email as string)}
         >
@@ -167,6 +169,7 @@ export default function PortfolioPage() {
     if (facebook) {
       contactUIs.push(
         <a
+          key={2}
           className={style.contactItem}
           href={facebook as string}
           target="_blank"
@@ -178,6 +181,7 @@ export default function PortfolioPage() {
     if (instagram) {
       contactUIs.push(
         <a
+          key={3}
           className={style.contactItem}
           href={instagram as string}
           target="_blank"
@@ -189,6 +193,7 @@ export default function PortfolioPage() {
     if (linkedin) {
       contactUIs.push(
         <a
+          key={4}
           className={style.contactItem}
           href={linkedin as string}
           target="_blank"
@@ -200,6 +205,7 @@ export default function PortfolioPage() {
     if (github) {
       contactUIs.push(
         <a
+          key={5}
           className={style.contactItem}
           href={github as string}
           target="_blank"
