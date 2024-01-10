@@ -1,18 +1,19 @@
 import apiHelper from "../utils/apiHelper";
 import { Apis } from "../utils/constant";
-import { User } from "../utils/interface";
+import { infoLogger } from "../utils/utils";
+import { Portfolio } from "../utils/interface";
 
-export const getPosts = async (role?: String | null) => {
+export const getPortfolios = async (role?: String | null) => {
   let params = {};
   if (role) {
     params = { roles: role };
   }
   const response = await apiHelper.get(Apis.getAll, params);
-  console.info(response.message);
-  return response.data as User[];
+  infoLogger(response.message, "getPortfolios");
+  return response.data as Portfolio[];
 };
 
-export const getPost = async (
+export const getPortfolio = async (
   id: String,
   withUserName: Boolean = true,
   parseImg: Boolean = true
@@ -22,6 +23,6 @@ export const getPost = async (
     params = { uname: 1, parseimg: parseImg ? 1 : 0 };
   }
   const response = await apiHelper.get(Apis.getOne + id, params);
-  console.info(response.message);
-  return response.data as User;
+  infoLogger(response.message, "getPortfolio");
+  return response.data as Portfolio;
 };

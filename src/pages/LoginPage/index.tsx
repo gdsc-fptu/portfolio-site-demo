@@ -2,7 +2,7 @@
 import style from "./style.module.scss";
 
 // Import React modules
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 
@@ -14,8 +14,8 @@ import { AppStrings } from "../../utils/strings";
 // Import apis and context
 import useAppStore from "../../context/store";
 import { GoogleLoginButton, GoogleResponse } from "../../utils/googleAuth";
-import { verifyGoogleAccount } from "../../apis/user";
-import { setToLocalStorage } from "../../utils/utils";
+import loginLogic from "../../logic/LoginPage/login";
+import initializePage from "../../logic/LoginPage/initialize";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState<Boolean>(false);
@@ -24,13 +24,16 @@ export default function LoginPage() {
 
   async function handleLogin(response: GoogleResponse) {
     setLoading(true);
-    await verifyGoogleAccount(response.access_token).then((userData) => {
+    loginLogic(response.access_token).then((user) => {
       setLoading(false);
-      setUser(userData);
-      setToLocalStorage("login", true);
+      setUser(user);
       navigator("/edit");
     });
   }
+
+  useEffect(() => {
+    initializePage();
+  }, []);
 
   return (
     <GeneralLayout isLoading={loading}>

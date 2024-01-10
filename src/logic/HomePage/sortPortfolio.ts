@@ -1,8 +1,8 @@
-import { User } from "./interface";
+import { Portfolio } from "../../utils/interface";
 
 const PRIORITIES_ROLE = ["LEAD", "CORE"];
 
-export default function sortMember(members: User[]) {
+export default function sortPortfolio(members: Portfolio[]) {
   return members.sort((a, b) => {
     const aRole = a.roles.find((role) =>
       PRIORITIES_ROLE.includes(role as string)

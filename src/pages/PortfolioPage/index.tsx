@@ -40,10 +40,9 @@ import {
   mobileAndTabletCheck,
 } from "../../utils/utils";
 import { AppStrings } from "../../utils/strings";
-import { getPost } from "../../apis/read";
 import useAppStore from "../../context/store";
+import initializePage from "../../logic/PortfolioPage/initialize";
 import setDocumentTitle from "../../logic/setTitle";
-import { fetchAccountUser } from "../../logic/fetchAccountUser";
 
 export default function PortfolioPage() {
   const [data, setData] = useState({} as any);
@@ -109,27 +108,15 @@ export default function PortfolioPage() {
   useEffect(() => {
     // Get the portfolio id
     let id = location.pathname.split("/")[1];
-    getPost(id).then(async (response) => {
-      /**
-       * Fetch account user data from database
-       */
-      if (!user) {
-        await fetchAccountUser(setUser);
-      }
-      /**
-       * If the portfolio is not found, redirect to 404 page
-       */
-      if (!response) {
-        navigator("/404");
-        return;
-      }
-      /**
-       * Set the portfolio data
-       */
-      setData(response);
-      setDocumentTitle(response.firstName, response.lastName, id);
-      document.addEventListener("scroll", handleScrollActions);
+    initializePage(id, navigator, user).then(({ user, portfolio }) => {
+      setData(portfolio);
+      setUser(user);
+      setDocumentTitle(portfolio?.firstName, portfolio?.lastName, id);
     });
+    /**
+     * Add scroll event listener
+     */
+    document.addEventListener("scroll", handleScrollActions);
     return () => {
       document.removeEventListener("scroll", handleScrollActions);
     };

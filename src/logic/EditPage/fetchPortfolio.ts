@@ -1,10 +1,10 @@
-import { getImage } from "../apis/media";
-import { getPost } from "../apis/read";
+import { getImage } from "../../apis/media";
+import { getPortfolio } from "../../apis/read";
 
-export async function fetchPortfolioData(userName: String) {
+export async function fetchPortfolio(userName: String) {
   let data = null;
   let imageUrl = null;
-  const portfolioData = await getPost(userName, true, false);
+  const portfolioData = await getPortfolio(userName, true, false);
   if (portfolioData) {
     data = portfolioData;
   }

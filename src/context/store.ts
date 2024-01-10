@@ -1,13 +1,13 @@
 import { create } from "zustand";
-import { AccountUser } from "../utils/interface";
+import { User } from "../utils/interface";
 
 type AppStoreProps = {
-  user: AccountUser | null;
-  setUser: (user: AccountUser | null) => void;
+  user: User | null;
+  setUser: (user: User | null) => void;
 };
 const useAppStore = create<AppStoreProps>((set) => ({
   user: null,
-  setUser: (user: AccountUser | null) => set({ user }),
+  setUser: (user: User | null) => set({ user }),
 }));
 
 export default useAppStore;

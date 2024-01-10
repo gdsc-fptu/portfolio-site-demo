@@ -4,6 +4,8 @@ import EditPage from "../pages/EditPage";
 import LoginPage from "../pages/LoginPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import CreateUserPage from "../pages/CreateUserPage";
+import DocumentPage from "../pages/DocumentPage";
+import CookieProtect from "./cookieProtect";
 
 export const routes = [
   {
@@ -12,15 +14,31 @@ export const routes = [
   },
   {
     path: "/edit",
-    element: <EditPage />,
+    element: (
+      <CookieProtect>
+        <EditPage />
+      </CookieProtect>
+    ),
   },
   {
     path: "/login",
-    element: <LoginPage />,
+    element: (
+      <CookieProtect>
+        <LoginPage />
+      </CookieProtect>
+    ),
   },
   {
     path: "/create",
-    element: <CreateUserPage />,
+    element: (
+      <CookieProtect>
+        <CreateUserPage />
+      </CookieProtect>
+    ),
+  },
+  {
+    path: "docs/*",
+    element: <DocumentPage />,
   },
   {
     path: "/404",

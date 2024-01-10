@@ -10,12 +10,12 @@ import { MdModeEdit } from "react-icons/md";
 import { IoLogOut } from "react-icons/io5";
 import { AppStrings } from "../../../utils/strings";
 import { getMUIGlobalTheme, mobileAndTabletCheck } from "../../../utils/utils";
-import { AccountUser } from "../../../utils/interface";
+import { User } from "../../../utils/interface";
 import useAppStore from "../../../context/store";
-import processLogout from "../../../logic/logout";
+import logoutLogic from "../../../logic/LoginPage/logout";
 
 type UserCircleProps = {
-  user: AccountUser;
+  user: User;
 };
 export default function UserCircle({ user }: UserCircleProps) {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -35,7 +35,7 @@ export default function UserCircle({ user }: UserCircleProps) {
 
   function handleLogout() {
     setUser(null);
-    processLogout();
+    logoutLogic();
   }
 
   return (

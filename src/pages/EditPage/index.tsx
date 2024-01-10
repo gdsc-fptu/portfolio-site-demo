@@ -36,60 +36,33 @@ import {
   getZodiacByBirthday,
 } from "../../utils/enum/zodiac";
 import { PROJECT_INITIALIZE, SKILL_INITIALIZE } from "../../utils/constant";
-import { AccountUser, User } from "../../utils/interface";
+import { User, Portfolio } from "../../utils/interface";
 import { AppStrings } from "../../utils/strings";
 
 // Import custom hooks & context
 import useAppStore from "../../context/store";
 import { GoogleLoginButton, GoogleResponse } from "../../utils/googleAuth";
-import { deleteImage } from "../../apis/media";
-import { verifyGoogleAccount } from "../../apis/user";
-import { updatePost } from "../../apis/update";
-import { fetchPortfolioData } from "../../logic/getPortfolio";
-import { processUploadImage } from "../../logic/uploadImage";
-import { processGetUser } from "../../logic/getAccountUser";
+import { updatePortfolio } from "../../apis/update";
+import { formatPercentInput, setToLocalStorage } from "../../utils/utils";
+import initializePage from "../../logic/EditPage/initialize";
 import {
-  formatPercentInput,
-  getFromLocalStorage,
-  setToLocalStorage,
-} from "../../utils/utils";
+  deleteImageLogic,
+  uploadImageLogic,
+} from "../../logic/EditPage/imageLogics";
+import reloginLogic from "../../logic/EditPage/relogin";
 
 export default function EditPage() {
   /**
    * States
    */
   const [saving, setSaving] = useState<Boolean>(false);
-  const [form, setForm] = useState<User>({} as User);
+  const [form, setForm] = useState({} as Portfolio);
   const [previewImg, setPreviewImg] = useState<String>("");
   const [isRembg, setRembg] = useState<Boolean>(true);
   // Account User Global state
   const user = useAppStore((state) => state.user);
   const setUser = useAppStore((state) => state.setUser);
   const navigator = useNavigate();
-
-  function handleSetPageDataAfterLogin(
-    user: AccountUser,
-    data: User | null,
-    imageUrl: String | null
-  ) {
-    // Set data to state
-    if (data) {
-      setForm(() => data);
-    }
-    if (imageUrl) {
-      setPreviewImg(imageUrl);
-    }
-    setUser(user);
-  }
-
-  async function handleLoginToAnotherAccount(response: GoogleResponse) {
-    const userData = await verifyGoogleAccount(response.access_token);
-    const { data, imageUrl } = await fetchPortfolioData(userData.userName);
-    setToLocalStorage("form", data);
-    handleSetPageDataAfterLogin(userData, data, imageUrl);
-    // Refresh page
-    window.location.reload();
-  }
 
   /**
    * Form State Handlers
@@ -122,24 +95,13 @@ export default function EditPage() {
    * Image Handlers
    */
   async function handleUploadImage(file: File) {
-    setSaving(true);
-    const { imagePath, imageUrl } = await processUploadImage(file, isRembg);
-    console.log("Image", imagePath, imageUrl);
+    const { imagePath, imageUrl } = await uploadImageLogic(form, file, isRembg);
     handleSetForm("imageUrl", imagePath);
-    updatePost(form.id, {
-      ...form,
-      imageUrl: imagePath,
-    } as User).then(() => setSaving(false));
     return imageUrl;
   }
   async function handleDeleteImage() {
-    setSaving(true);
-    await deleteImage(form.imageUrl as string);
     handleSetForm("imageUrl", "");
-    updatePost(form.id, {
-      ...form,
-      imageUrl: "",
-    } as User).then(() => setSaving(false));
+    await deleteImageLogic(form);
   }
 
   /**
@@ -147,7 +109,7 @@ export default function EditPage() {
    */
   function handleSubmit() {
     setSaving(true);
-    updatePost(form.id, form).then((_) => {
+    updatePortfolio(form.id, form).then((_) => {
       setSaving(false);
       navigator(`/${form.userName}`);
     });
@@ -156,35 +118,37 @@ export default function EditPage() {
     navigator(`/${form.userName}`);
   }
 
+  function handleSetPageDataAfterLogin(
+    user: User | null,
+    data: Portfolio | null,
+    imageUrl: String | null
+  ) {
+    // Set data to state
+    if (data) {
+      setForm(() => data);
+    }
+    if (imageUrl) {
+      setPreviewImg(imageUrl);
+    }
+    setUser(user);
+  }
+
+  async function handleLoginToAnotherAccount(response: GoogleResponse) {
+    await reloginLogic(response.access_token);
+    // Refresh page
+    window.location.reload();
+  }
+
   useEffect(() => {
-    // Get from local storage
-    const localForm = getFromLocalStorage("form");
-    const onNotLoggedIn = () => {
-      navigator("/login");
-    };
-    const onNewUser = () => {
-      navigator("/create");
-    };
-    const onNotFound = () => {
-      navigator("/404");
-    };
-    const onGetUser = (data: User | null, imageUrl: String | null) => {
-      handleSetPageDataAfterLogin(user as AccountUser, data, imageUrl);
-    };
-    processGetUser(
-      user,
-      localForm,
-      onNotLoggedIn,
-      onNewUser,
-      onGetUser,
-      onNotFound
-    ).then((responseUser) => {
-      setUser(responseUser as AccountUser);
-      // handleSetForm("email", responseUser?.email);
+    initializePage(user, navigator).then(({ user, data, imageUrl }) => {
+      handleSetPageDataAfterLogin(user, data, imageUrl);
     });
   }, []);
 
   useEffect(() => {
+    /**
+     * Update form to local storage every time form changes
+     */
     if (Object.keys(form).length !== 0) {
       setToLocalStorage("form", form);
     }
@@ -365,8 +329,19 @@ export default function EditPage() {
           </span>
           <ImageUploadButton
             image={previewImg}
-            onUpload={handleUploadImage}
-            onDelete={handleDeleteImage}
+            onUpload={async (file) => {
+              setSaving(true);
+              return handleUploadImage(file).then((imageUrl) => {
+                setSaving(false);
+                return imageUrl;
+              });
+            }}
+            onDelete={async () => {
+              setSaving(true);
+              handleDeleteImage().then(() => {
+                setSaving(false);
+              });
+            }}
           />
         </InputZone>
 

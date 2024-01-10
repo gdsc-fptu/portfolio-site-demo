@@ -1,9 +1,9 @@
-import { PRESERVE_KEYWORDS } from "../utils/constant";
-import { isASCII } from "../utils/utils";
-import { checkUserAvailability } from "../apis/user";
-import { AppStrings } from "../utils/strings";
+import { PRESERVE_KEYWORDS } from "../../utils/constant";
+import { isASCII } from "../../utils/utils";
+import { checkUserAvailability } from "../../apis/user";
+import { AppStrings } from "../../utils/strings";
 
-export async function checkUserNameAvailability(
+export default async function checkUserNameAvailability(
   userName: String,
   onError?: (error: String | null) => void
 ): Promise<Boolean> {

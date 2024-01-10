@@ -122,23 +122,6 @@ export function getMUIGlobalTheme(color?: GoogleColor) {
   };
 }
 
-export function getFromLocalStorage(key: string) {
-  const value = localStorage.getItem(key);
-  if (value) {
-    return JSON.parse(value);
-  }
-  return null;
-}
-
-export function setToLocalStorage(key: string, value: any) {
-  const valueStr = JSON.stringify(value);
-  localStorage.setItem(key, valueStr);
-}
-
-export function removeFromLocalStorage(key: string) {
-  localStorage.removeItem(key);
-}
-
 export function convertStringToNumber(value: String) {
   if (value === "") {
     return 0;
@@ -165,6 +148,31 @@ export function formatPercentInput(
   return value;
 }
 
+/**
+ * Local storage. Used to store form data.
+ */
+
+export function getFromLocalStorage(key: string) {
+  const value = localStorage.getItem(key);
+  if (value) {
+    return JSON.parse(value);
+  }
+  return null;
+}
+
+export function setToLocalStorage(key: string, value: any) {
+  const valueStr = JSON.stringify(value);
+  localStorage.setItem(key, valueStr);
+}
+
+export function removeFromLocalStorage(key: string) {
+  localStorage.removeItem(key);
+}
+
+/**
+ * Cookies. Used to store token.
+ */
+
 export function checkCookieIsEnabled() {
   return navigator.cookieEnabled;
 }
@@ -179,4 +187,16 @@ export function getTokenCookie() {
 
 export function removeTokenCookie() {
   Cookies.remove("token");
+}
+
+/**
+ * Loggers. Used to log errors and info to console.
+ */
+
+export function errorLogger(error: any, origin: String) {
+  console.error(`Error from ${origin}: ${error}`);
+}
+
+export function infoLogger(info: any, origin: String) {
+  console.info(`Info from ${origin}: ${info}`);
 }

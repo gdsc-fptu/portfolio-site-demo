@@ -15,7 +15,7 @@ export type Project = {
   syncId?: String | null;
 };
 
-export type User = {
+export type Portfolio = {
   id: String;
   userName: String;
   firstName: String;
@@ -40,10 +40,10 @@ export type User = {
 
 export type ResponseObject = {
   message: String;
-  data: User | User[] | null;
+  data: Portfolio | Portfolio[] | null;
 };
 
-export type AccountUser = {
+export type User = {
   id: String;
   userName: String;
   name: String;

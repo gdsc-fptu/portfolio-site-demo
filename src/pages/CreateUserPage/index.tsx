@@ -12,18 +12,18 @@ import GeneralLayout from "../../components/Shared/GeneralLayout";
 import AppButton from "../../components/Shared/Button";
 import Spacer from "../../components/Shared/Spacer";
 import { AppStrings } from "../../utils/strings";
-import { AccountUser } from "../../utils/interface";
 
 // Import APIs
-import { createPortfolio, getCurrentUser } from "../../apis/user";
-import { checkUserNameAvailability } from "../../logic/checkUserNameAvailability";
-import { getFromLocalStorage } from "../../utils/utils";
 import useAppStore from "../../context/store";
+import initializePage from "../../logic/CreatePage/initialize";
+import handleCreatePortfolio from "../../logic/CreatePage/createPortfolio";
+import checkUserNameAvailability from "../../logic/CreatePage/checkUserNameAvailability";
 
 export default function CreateUserPage() {
   const [loading, setLoading] = useState<Boolean>(false);
   const [userName, setUserName] = useState<String>("");
   const [error, setError] = useState<String | null>(null);
+  const user = useAppStore((state) => state.user);
   const setUser = useAppStore((state) => state.setUser);
   const navigator = useNavigate();
 
@@ -32,42 +32,35 @@ export default function CreateUserPage() {
     setError(null);
   }
 
-  async function handleCheckUnqiue() {
-    return checkUserNameAvailability(userName, (error) => setError(error));
-  }
-
   function isButtonDisabled() {
     if (loading) return true;
     if (userName === "") return true;
     return false;
   }
 
+  async function handleCheckUnqiue() {
+    return await checkUserNameAvailability(userName, (error) =>
+      setError(error)
+    );
+  }
+
   async function handleCreateUser() {
     setLoading(true);
-    const isAvailable = await handleCheckUnqiue();
-    if (!isAvailable) {
+    if (!(await handleCheckUnqiue())) {
       setLoading(false);
       return;
     }
     if (!error && userName !== "") {
-      createPortfolio(userName).then(() => {
-        getCurrentUser().then((user: AccountUser) => {
-          console.log(user);
-          setUser({
-            ...user,
-            userName,
-          } as AccountUser);
-          navigator("/edit");
-          setLoading(false);
-        });
+      handleCreatePortfolio(user, userName).then((user) => {
+        setUser(user);
+        setLoading(false);
+        navigator("/edit");
       });
     }
   }
 
   useEffect(() => {
-    if (!getFromLocalStorage("login")) {
-      navigator("/login");
-    }
+    initializePage(user, navigator).then((user) => setUser(user));
   }, []);
 
   return (

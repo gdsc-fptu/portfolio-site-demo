@@ -17,21 +17,19 @@ import Badge from "../../components/Shared/Badges";
 import UserCircle from "../../components/Shared/User";
 import { GoogleColor } from "../../utils/enum/color";
 import { getColorByRole, getFullNameByRole } from "../../utils/enum/roles";
-import { User } from "../../utils/interface";
+import { Portfolio } from "../../utils/interface";
 import { AppStrings } from "../../utils/strings";
-import sortMember from "../../utils/sortMember";
 
 // Import apis & hooks
-import { getPosts } from "../../apis/read";
+import initializePage from "../../logic/HomePage/initialize";
 import useGesture from "../../hooks/useGesture";
 import useKeyboard from "../../hooks/useKeyboard";
 import useAppStore from "../../context/store";
-import { fetchAccountUser } from "../../logic/fetchAccountUser";
 
 /**
  * Local interfaces
  */
-type StateProps = {
+type CurrentPortfolioProps = {
   index: number;
   id: string;
   color: GoogleColor;
@@ -42,13 +40,13 @@ export default function HomePage() {
    * State, Props
    */
   // Set data for all portfolio
-  const [data, setData] = useState([] as User[]);
-  // Set state for portfolio attributes
-  const [state, setState] = useState({
+  const [portfoliosData, setPortfoliosData] = useState([] as Portfolio[]);
+  // Set state for UIs attributes
+  const [currentPortfolio, setCurrentPortfolio] = useState({
     index: 0,
     id: "",
     color: GoogleColor.black,
-  } as StateProps);
+  } as CurrentPortfolioProps);
   const user = useAppStore((state) => state.user);
   const setUser = useAppStore((state) => state.setUser);
   // Set navigator
@@ -60,23 +58,23 @@ export default function HomePage() {
    * Get Image Urls from data
    */
   function getImageUrls() {
-    return data.map((user) => user.imageUrl);
+    return portfoliosData.map((portfolio) => portfolio.imageUrl);
   }
 
   /**
    * Set state for portfolio attributes
    */
-  function handleSetState(index: number, id: String, color: String) {
+  function handleSetCurrentPortfolio(index: number, id: String, color: String) {
     if (typeof color === "string") {
       color = getColorByRole(color);
     }
-    setState(
+    setCurrentPortfolio(
       (_) =>
         ({
           index: index,
           id: id,
           color: color ? color : GoogleColor.black,
-        } as StateProps)
+        } as CurrentPortfolioProps)
     );
   }
 
@@ -84,49 +82,56 @@ export default function HomePage() {
    * Handle change index
    */
   function handleChangeIndex(index: number) {
-    if (index < 0 || index >= data.length) return;
-    handleSetState(index, data[index].userName, data[index].roles[0]);
+    if (index < 0 || index >= portfoliosData.length) return;
+    handleSetCurrentPortfolio(
+      index,
+      portfoliosData[index].userName,
+      portfoliosData[index].roles[0]
+    );
   }
 
   /**
    * Handle view portfolio
    */
   function handleViewPortfolio() {
-    navigator(`/${state.id}`);
+    if (currentPortfolio.id !== "") {
+      navigator(`/${currentPortfolio.id}`);
+    }
   }
 
   /**
    * Gesture and Keyboard event listener
    */
   const gestureBinding = useGesture({
-    onSwipeLeft: () => handleChangeIndex(state.index + 1),
-    onSwipeRight: () => handleChangeIndex(state.index - 1),
+    onSwipeLeft: () => handleChangeIndex(currentPortfolio.index + 1),
+    onSwipeRight: () => handleChangeIndex(currentPortfolio.index - 1),
+    onSwipeUp: () => handleChangeIndex(currentPortfolio.index + 1),
+    onSwipeDown: () => handleChangeIndex(currentPortfolio.index - 1),
+    onLongPress: () => handleViewPortfolio(),
   });
   const keyboardBinding = useKeyboard({
-    onLeftArrow: () => handleChangeIndex(state.index - 1),
-    onRightArrow: () => handleChangeIndex(state.index + 1),
+    onLeftArrow: () => handleChangeIndex(currentPortfolio.index - 1),
+    onRightArrow: () => handleChangeIndex(currentPortfolio.index + 1),
     onEnter: () => handleViewPortfolio(),
   });
 
   useEffect(() => {
     /**
-     * Fetch all portfolio data from database
+     * Set document title
      */
     document.title = AppStrings.footerBrand;
+    /**
+     * Fetch all portfolio data from database
+     */
     const role = new URLSearchParams(location.search).get("role");
-    getPosts(role).then(async (users) => {
-      /**
-       * Fetch account user data from database
-       */
-      if (!user) {
-        await fetchAccountUser(setUser);
-      }
-      /**
-       * Sort & Set data members by roles
-       */
-      users = sortMember(users);
-      handleSetState(0, users[0].userName, users[0].roles[0]);
-      setData(users);
+    initializePage(role, user).then(({ portfolios, user }) => {
+      handleSetCurrentPortfolio(
+        0,
+        portfolios[0].userName,
+        portfolios[0].roles[0]
+      );
+      setPortfoliosData(portfolios);
+      setUser(user);
     });
   }, []);
 
@@ -144,7 +149,7 @@ export default function HomePage() {
     };
   }, [keyboardBinding.onKeyPress]);
 
-  return data.length !== 0 ? (
+  return portfoliosData.length !== 0 ? (
     <div className={style.container} {...gestureBinding}>
       {user && (
         <div className={style.userContainer}>
@@ -154,34 +159,34 @@ export default function HomePage() {
       <div
         className={style.bottom}
         style={{
-          height: `${data.length * 100}%`,
+          height: `${portfoliosData.length * 100}%`,
         }}
       >
-        {data.map((data, index) => (
+        {portfoliosData.map((portfolio, index) => (
           <div
             key={index}
             className={style.nameContainer}
             style={{
-              transform: `translateY(-${state.index * 100}%)`,
+              transform: `translateY(-${currentPortfolio.index * 100}%)`,
             }}
           >
-            <div className={style.firstName}>{data.firstName}</div>
+            <div className={style.firstName}>{portfolio.firstName}</div>
             <div
               className={clsx(
                 style.lastName,
-                style[getColorByRole(data.roles[0])]
+                style[getColorByRole(portfolio.roles[0])]
               )}
             >
-              {data.lastName}
+              {portfolio.lastName}
             </div>
             <div className={style.tag}>
               <span
                 className={clsx(
                   style.tagText,
-                  style[getColorByRole(data.roles[0])]
+                  style[getColorByRole(portfolio.roles[0])]
                 )}
               >
-                @{data.userName}
+                @{portfolio.userName}
               </span>
             </div>
           </div>
@@ -190,7 +195,7 @@ export default function HomePage() {
       <div
         className={style.middle}
         style={{
-          width: `${data.length * 100}%`,
+          width: `${portfoliosData.length * 100}%`,
         }}
       >
         {getImageUrls().map((url, index) => (
@@ -198,7 +203,7 @@ export default function HomePage() {
             key={index}
             className={clsx(style.imageContainer)}
             style={{
-              transform: `translateX(-${state.index * 100}%)`,
+              transform: `translateX(-${currentPortfolio.index * 100}%)`,
             }}
           >
             {url && <img src={url as string} alt="Profile" />}
@@ -208,19 +213,19 @@ export default function HomePage() {
       <div
         className={style.top}
         style={{
-          height: `${data.length * 100}%`,
+          height: `${portfoliosData.length * 100}%`,
         }}
       >
-        {data.map((data, index) => (
+        {portfoliosData.map((portfolio, index) => (
           <div
             key={index}
             className={style.rolesContainer}
             style={{
-              transform: `translateY(-${state.index * 100}%)`,
+              transform: `translateY(-${currentPortfolio.index * 100}%)`,
             }}
           >
             <div className={style.roles}>
-              {data.roles.map((role, index) => (
+              {portfolio.roles.map((role, index) => (
                 <Fragment key={index}>
                   <Badge color={getColorByRole(role)}>
                     {getFullNameByRole(role)}
@@ -238,32 +243,33 @@ export default function HomePage() {
         <div className={style.chevrons}>
           <div
             className={clsx(style.chevron, style.left, {
-              [style.disabled]: state.index === 0,
+              [style.disabled]: currentPortfolio.index === 0,
             })}
-            onClick={() => handleChangeIndex(state.index - 1)}
+            onClick={() => handleChangeIndex(currentPortfolio.index - 1)}
           >
             <FaChevronLeft />
           </div>
           <div
             className={clsx(style.chevron, style.right, {
-              [style.disabled]: state.index === data.length - 1,
+              [style.disabled]:
+                currentPortfolio.index === portfoliosData.length - 1,
             })}
-            onClick={() => handleChangeIndex(state.index + 1)}
+            onClick={() => handleChangeIndex(currentPortfolio.index + 1)}
           >
             <FaChevronRight />
           </div>
         </div>
         <div className={style.button}>
           <button
-            className={clsx(style.btn, style[state.color])}
+            className={clsx(style.btn, style[currentPortfolio.color])}
             onClick={() => handleViewPortfolio()}
           >
             {AppStrings.language.homePage.viewPortfolio}
           </button>
         </div>
       </div>
-      <Background color={state.color} />
-      <MovingBubble color={state.color} />
+      <Background color={currentPortfolio.color} />
+      <MovingBubble color={currentPortfolio.color} />
     </div>
   ) : (
     <Loader />
