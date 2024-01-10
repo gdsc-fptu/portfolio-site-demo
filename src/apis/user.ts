@@ -41,9 +41,6 @@ export const createPortfolio = async (userName: String) => {
   // Update the user name in the database
   const firstResponse = await apiHelper.post(Apis.updateUserName, { userName });
   console.info(firstResponse.message, "createPortfolio");
-  if (!firstResponse.data) {
-    return;
-  }
   // Create a new portfolio
   const secondResponse = await apiHelper.post(Apis.create, { userName });
   console.info(secondResponse.message, "createPortfolio");
