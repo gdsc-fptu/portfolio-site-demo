@@ -7,6 +7,7 @@ import logo from "../../assets/brands/logo.png";
 import { useState, useCallback, useEffect, Fragment } from "react";
 import clsx from "clsx";
 import { useLocation, useNavigate } from "react-router-dom";
+import Snackbar from "@mui/material/Snackbar";
 import { BiCake, BiLogoTiktok } from "react-icons/bi";
 import {
   AiFillPhone,
@@ -28,10 +29,12 @@ import SubSection from "../../components/PortfolioPage/SubSection";
 import Loader from "../../components/Shared/Loader";
 import MovingBubble from "../../components/Shared/MovingBubble";
 import UserCircle from "../../components/Shared/User";
+import MUIConfigsWrapper from "../../components/Shared/GeneralLayout/MUIWraper";
 import { getColorByRole, getFullNameByRole } from "../../utils/enum/roles";
 import { getStringByGender, getIconByGender } from "../../utils/enum/gender";
 import { getStringByZodiac, getIconByZodiac } from "../../utils/enum/zodiac";
 import { Project, Skill } from "../../utils/interface";
+import { SNACKBAR_TIMEOUT } from "../../utils/constant";
 
 // Import utils
 import {
@@ -45,6 +48,7 @@ import initializePage from "../../logic/PortfolioPage/initialize";
 import setDocumentTitle from "../../logic/setTitle";
 
 export default function PortfolioPage() {
+  const [snackbar, setSnackbar] = useState(false);
   const [data, setData] = useState({} as any);
   const location = useLocation();
   const user = useAppStore((state) => state.user);
@@ -85,6 +89,11 @@ export default function PortfolioPage() {
       }
     }
   }, []);
+
+  function handleCopyToClipboard(text: String) {
+    copyToClipboard(text);
+    setSnackbar(true);
+  }
 
   function handleNavigateToHome() {
     navigator("/");
@@ -136,7 +145,7 @@ export default function PortfolioPage() {
         <div
           key={0}
           className={style.contactItem}
-          onClick={() => copyToClipboard(phone as string)}
+          onClick={() => handleCopyToClipboard(phone as string)}
         >
           <AiFillPhone />
         </div>
@@ -147,7 +156,7 @@ export default function PortfolioPage() {
         <div
           key={1}
           className={style.contactItem}
-          onClick={() => copyToClipboard(email as string)}
+          onClick={() => handleCopyToClipboard(email as string)}
         >
           <AiOutlineMail />
         </div>
@@ -294,7 +303,9 @@ export default function PortfolioPage() {
         </div>
         {data.skills?.length !== 0 ? (
           <div className={style.skills}>
-            <div className={style.skillsTitle}>{AppStrings.skills}</div>
+            <div className={style.skillsTitle}>
+              {AppStrings.language.portfolioPage.skills}
+            </div>
             <div className={style.skillsSection}>
               {data.skills?.map((skill: Skill, index: number) => (
                 <div key={index} className={style.skill}>
@@ -327,7 +338,9 @@ export default function PortfolioPage() {
       <SubSection>
         {data.projects?.length !== 0 ? (
           <div className={style.projects}>
-            <div className={style.projectsHeading}>{AppStrings.projects}</div>
+            <div className={style.projectsHeading}>
+              {AppStrings.language.portfolioPage.projects}
+            </div>
             <div className={style.projectsGrid}>
               {data.projects?.map((project: Project, index: number) => (
                 <div key={index} className={style.project}>
@@ -426,8 +439,16 @@ export default function PortfolioPage() {
         </div>
       </SubSection>
       <div className="signature">
-        Creator <code>@Ming-doan</code> ©2023
+        Creator <code>@Ming-doan</code> ©2023-2024
       </div>
+      <MUIConfigsWrapper>
+        <Snackbar
+          open={snackbar}
+          onClose={() => setSnackbar(false)}
+          autoHideDuration={SNACKBAR_TIMEOUT}
+          message={AppStrings.language.portfolioPage.copyToClipboard}
+        />
+      </MUIConfigsWrapper>
     </Fragment>
   ) : (
     <Loader />

@@ -3,10 +3,9 @@ import style from "./style.module.scss";
 // @ts-ignore
 import logo from "../../../assets/brands/logo.png";
 import Background from "../Background";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
 import LinearProgress from "@mui/material/LinearProgress";
 import { GoogleColor } from "../../../utils/enum/color";
-import { getMUIGlobalTheme } from "../../../utils/utils";
+import MUIConfigsWrapper from "./MUIWraper";
 
 type GeneralLayoutProps = {
   children?: React.ReactNode | React.ReactNode[];
@@ -19,7 +18,7 @@ export default function GeneralLayout({
   color = GoogleColor.black,
 }: GeneralLayoutProps) {
   return (
-    <ThemeProvider theme={createTheme(getMUIGlobalTheme(color))}>
+    <MUIConfigsWrapper color={color}>
       <div className={style.container}>
         {isLoading ? (
           <div className={style.progress}>
@@ -34,6 +33,6 @@ export default function GeneralLayout({
         </div>
         <Background />
       </div>
-    </ThemeProvider>
+    </MUIConfigsWrapper>
   );
 }

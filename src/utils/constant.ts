@@ -41,3 +41,5 @@ export const FILE_SIZE_LIMIT = 100000; // 2MB
 export const ACCEPTED_TYPES = ".png,.jpg,.jpeg";
 
 export const PRESERVE_KEYWORDS = ["edit", "login", "create", "404", "docs"];
+
+export const SNACKBAR_TIMEOUT = 1500;

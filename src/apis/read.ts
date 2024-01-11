@@ -1,6 +1,6 @@
 import apiHelper from "../utils/apiHelper";
 import { Apis } from "../utils/constant";
-import { infoLogger } from "../utils/utils";
+import { detectError, infoLogger } from "../utils/utils";
 import { Portfolio } from "../utils/interface";
 
 export const getPortfolios = async (role?: String | null) => {
@@ -9,6 +9,7 @@ export const getPortfolios = async (role?: String | null) => {
     params = { roles: role };
   }
   const response = await apiHelper.get(Apis.getAll, params);
+  detectError(response.error);
   infoLogger(response.message, "getPortfolios");
   return response.data as Portfolio[];
 };
@@ -23,6 +24,7 @@ export const getPortfolio = async (
     params = { uname: 1, parseimg: parseImg ? 1 : 0 };
   }
   const response = await apiHelper.get(Apis.getOne + id, params);
+  detectError(response.error);
   infoLogger(response.message, "getPortfolio");
   return response.data as Portfolio;
 };

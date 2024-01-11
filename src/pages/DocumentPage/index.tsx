@@ -1,15 +1,21 @@
 // @ts-ignore
 import style from "./style.module.scss";
+import { useLocation } from "react-router-dom";
 import GeneralLayout from "../../components/Shared/GeneralLayout";
+import getDocumentByPath from "../../utils/documents/getDocumentByPath";
 
 export default function DocumentPage() {
+  const location = useLocation();
+  // Get path from location
+  const path = location.pathname;
+  // Get document name from path
+  const document = getDocumentByPath(path);
+
   return (
     <GeneralLayout>
       <div className={style.container}>
-        <h1 className={style.heading}>Cookie is disabled</h1>
-        <p className={style.paragraph}>
-          Enable the cookie permission in your browser to login
-        </p>
+        <h1 className={style.heading}>{document?.heading}</h1>
+        <p className={style.paragraph}>{document?.paragraph}</p>
       </div>
     </GeneralLayout>
   );

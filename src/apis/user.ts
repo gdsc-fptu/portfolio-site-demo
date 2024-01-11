@@ -1,7 +1,12 @@
 import apiHelper from "../utils/apiHelper";
 import { Apis } from "../utils/constant";
 import { User } from "../utils/interface";
-import { getTokenCookie, setTokenCookie, infoLogger } from "../utils/utils";
+import {
+  getTokenCookie,
+  setTokenCookie,
+  infoLogger,
+  detectError,
+} from "../utils/utils";
 
 export const verifyGoogleAccount = async (accessToken: String) => {
   const response = await apiHelper.post(Apis.verify, {
@@ -41,13 +46,16 @@ export const createPortfolio = async (userName: String) => {
   // Update the user name in the database
   const firstResponse = await apiHelper.post(Apis.updateUserName, { userName });
   console.info(firstResponse.message, "createPortfolio");
+  detectError(firstResponse.error);
   // Create a new portfolio
   const secondResponse = await apiHelper.post(Apis.create, { userName });
   console.info(secondResponse.message, "createPortfolio");
+  detectError(secondResponse.error);
 };
 
 export const logout = async () => {
   const response = await apiHelper.get(Apis.logout);
+  detectError(response.error);
   infoLogger(response.message, "logout");
   return response.data;
 };

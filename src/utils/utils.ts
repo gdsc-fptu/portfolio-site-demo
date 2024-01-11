@@ -18,8 +18,8 @@ export function incEltNbr(elt: HTMLElement, value: number, speed: number = 10) {
   incNbrRec(0, value, elt);
 }
 
-export function copyToClipboard(text: string) {
-  navigator.clipboard.writeText(text);
+export function copyToClipboard(text: String) {
+  navigator.clipboard.writeText(text as string);
 }
 
 export function mobileAndTabletCheck() {
@@ -199,4 +199,17 @@ export function errorLogger(error: any, origin: String) {
 
 export function infoLogger(info: any, origin: String) {
   console.info(`Info from ${origin}: ${info}`);
+}
+
+/**
+ * Errors. Used to handle errors.
+ */
+export function detectError(error: any) {
+  // Check if error is null or undefined
+  if (!error) {
+    return;
+  }
+  errorLogger(error, "Detecting Error: ");
+  // Change location to error page
+  window.location.href = "/docs/error";
 }

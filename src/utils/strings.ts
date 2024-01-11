@@ -2,6 +2,11 @@ const AppLanguageVi = {
   homePage: {
     viewPortfolio: "Xem Portfolio",
   },
+  portfolioPage: {
+    skills: "Kỹ năng",
+    projects: "Dự án",
+    copyToClipboard: "Đã sao chép link",
+  },
   loginPage: {
     title: "Bạn cần đăng nhập để tiếp tục",
     loginBtn: "Đăng nhập với Google",
@@ -101,6 +106,11 @@ const AppLanguageVi = {
 const AppLanguageEn = {
   homePage: {
     viewPortfolio: "View Portfolio",
+  },
+  portfolioPage: {
+    skills: "Skills",
+    projects: "Projects",
+    copyToClipboard: "Copied to clipboard",
   },
   loginPage: {
     title: "You must login to continue",

@@ -10,6 +10,7 @@ const api = axios.create({
 type ApiResponse<T> = {
   message: string;
   data: T;
+  error?: any;
 };
 
 const apiHelper = {
@@ -25,8 +26,7 @@ const apiHelper = {
       const response = await api.get<ApiResponse<T>>(url, { params });
       return response.data;
     } catch (error: any) {
-      console.error(error.response ? error.response.message : error.message);
-      return {} as ApiResponse<T>;
+      return { error } as ApiResponse<T>;
     }
   },
 
@@ -42,8 +42,7 @@ const apiHelper = {
       });
       return response.data;
     } catch (error: any) {
-      console.error(error.response ? error.response.message : error.message);
-      return {} as ApiResponse<T>;
+      return { error } as ApiResponse<T>;
     }
   },
 
@@ -59,8 +58,7 @@ const apiHelper = {
       });
       return response.data;
     } catch (error: any) {
-      console.error(error.response ? error.response.message : error.message);
-      return {} as ApiResponse<T>;
+      return { error } as ApiResponse<T>;
     }
   },
 
@@ -76,8 +74,7 @@ const apiHelper = {
       });
       return response.data;
     } catch (error: any) {
-      console.error(error.response ? error.response.message : error.message);
-      return {} as ApiResponse<T>;
+      return { error } as ApiResponse<T>;
     }
   },
 
@@ -89,8 +86,7 @@ const apiHelper = {
       const response = await api.delete<ApiResponse<T>>(url, { ...config });
       return response.data;
     } catch (error: any) {
-      console.error(error.response ? error.response.message : error.message);
-      return {} as ApiResponse<T>;
+      return { error } as ApiResponse<T>;
     }
   },
 };
