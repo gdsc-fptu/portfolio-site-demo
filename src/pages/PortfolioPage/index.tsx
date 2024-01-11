@@ -410,7 +410,7 @@ export default function PortfolioPage() {
           <div className={style.footerLinks}>
             <div
               className={style.footerLink}
-              onClick={() => copyToClipboard(AppStrings.email)}
+              onClick={() => handleCopyToClipboard(AppStrings.email)}
             >
               <AiOutlineMail />
             </div>
